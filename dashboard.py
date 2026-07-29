@@ -182,7 +182,9 @@ with tab_over:
     P = ACT_MIN[ACT_MIN.p_valid]
     A = ACT_MIN[ACT_MIN.a_valid]
     tot_p, tot_a = P.proposed_financial_lakh.sum(), A.approved_financial_lakh.sum()
-    latest, prev = "2025-26", "2024-25"
+    data_years = [y for y in YEARS if (A.year == y).any()]
+    latest = data_years[-1] if data_years else YEARS[-1]
+    prev = data_years[-2] if len(data_years) > 1 else latest
     a_latest = A[A.year == latest].approved_financial_lakh.sum()
     # YoY on the common-state subset only, so coverage changes between the
     # two years can't masquerade as budget changes
