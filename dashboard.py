@@ -126,7 +126,19 @@ def load(mtime=None):
 
 import os as _os
 BUDGET, NARRATIVE, LOG = load(_os.path.getmtime(WB))
-ACT_MIN = BUDGET[(BUDGET.row_type == "activity") & (BUDGET.doc_type == "minutes")]
+_ACT_ALL = BUDGET[BUDGET.row_type == "activity"]
+# A handful of state-years (e.g. Kerala/Tamil Nadu/Goa/Assam 2025-26) have no
+# primary "minutes" doc at all — their approval was only ever recorded in an
+# addendum. Fall back to the addendum for those state-years only, so they
+# aren't silently dropped from national totals and YoY comparisons; states
+# that already have a minutes doc keep using it exclusively (addenda there
+# are incremental top-ups, not replacements, and must not be double-counted).
+_minutes_pairs = set(map(tuple,
+    _ACT_ALL.loc[_ACT_ALL.doc_type == "minutes", ["state", "year"]].values))
+_is_primary = (_ACT_ALL.doc_type == "minutes") | (
+    _ACT_ALL.doc_type.isin(["addendum", "addendum (alt)"])
+    & ~_ACT_ALL[["state", "year"]].apply(tuple, axis=1).isin(_minutes_pairs))
+ACT_MIN = _ACT_ALL[_is_primary]
 CAT_ORDER = [c for c, _ in CATEGORIES] + ["Other / unidentified"]
 CAT_COLOR = dict(zip(CAT_ORDER, SERIES[:6] + [MUTED]))
 
@@ -280,7 +292,8 @@ with tab_over:
                                             format=",.0f")])
                .properties(height=330))
         st.altair_chart(themed(ch2), width="stretch")
-    st.caption("Primary minutes only; validated rows only. Activity heads "
+    st.caption("Primary minutes (or, where no minutes exist for a state-year, "
+               "its addendum) only; validated rows only. Activity heads "
                "are grouped from the printed activity names; '87 / PMU' "
                "codes count as PMU.")
 
@@ -433,9 +446,10 @@ with tab_comp:
                                         format=",.1f")])
            .properties(height=max(300, 22 * len(comp))))
     st.altair_chart(themed(ch3), width="stretch")
-    st.caption("Validated rows from primary minutes. States absent here "
-               "either had no usable data for this year (see Coverage) or "
-               "approved nothing under the selected heads.")
+    st.caption("Validated rows from primary minutes (or its addendum, for "
+               "the few state-years with no minutes on file). States absent "
+               "here either had no usable data for this year (see Coverage) "
+               "or approved nothing under the selected heads.")
     st.download_button("Download this view (CSV)",
                        comp.to_csv(index=False).encode(),
                        f"nipun_{sel_yr}_{measure.replace(' ', '_')}.csv",
@@ -637,9 +651,10 @@ with tab_ana:
               f"₹{s_fin / s_phy:,.0f}" if s_phy else "n/a",
               help=f"₹{s_fin / 1e7:,.1f} Cr on student-matched rows over "
                    f"{s_phy:,.0f} physical units (mostly students)")
-    st.caption("Validated activity rows from minutes only. Teacher and "
-               "student figures divide each group's own spend by its own "
-               "physical targets, not the total outlay.")
+    st.caption("Validated activity rows from minutes (or addendum, where no "
+               "minutes exist for a state-year). Teacher and student figures "
+               "divide each group's own spend by its own physical targets, "
+               "not the total outlay.")
 
     st.subheader("Top 10 line items by approved outlay")
     top10 = (df_ana.groupby(["activity", "category_base"])
