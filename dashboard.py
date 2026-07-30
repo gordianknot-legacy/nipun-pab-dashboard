@@ -173,9 +173,9 @@ with st.sidebar:
     st.caption("Built from NIPUN_Bharat_PAB_master.xlsx · "
                "re-run `python parallel_extract.py` after new downloads")
 
-tab_over, tab_state, tab_comp, tab_cov = st.tabs(
+tab_over, tab_state, tab_comp, tab_cov, tab_ana = st.tabs(
     ["🇮🇳 National Picture", "🏛️ State Explorer", "📊 Compare States",
-     "🧭 Coverage & Quality"])
+     "🧭 Coverage & Quality", "📈 Analytics"])
 
 # ------------------------------------------------------------ national
 with tab_over:
@@ -591,3 +591,120 @@ with tab_cov:
         st.dataframe(pd.DataFrame(rep), hide_index=True, width="content")
     except Exception:
         st.caption("Certification measurement not yet run.")
+
+# ------------------------------------------------------------ analytics
+with tab_ana:
+    a1, a2 = st.columns([1, 2])
+    ana_scope = a1.radio("Scope", ["National", "One state / UT"],
+                         horizontal=True)
+    ana_years = a2.multiselect("AWP&B years", YEARS,
+                               default=[YEARS[-2], YEARS[-1]])
+    df_ana = ACT_MIN[ACT_MIN.a_valid].copy()
+    if ana_scope == "One state / UT":
+        ana_states = sorted(df_ana.state.dropna().unique())
+        ana_state = st.selectbox("State / UT", ana_states)
+        df_ana = df_ana[df_ana.state == ana_state]
+    df_ana = df_ana[df_ana.year.isin(ana_years)]
+    n_years = max(len(ana_years), 1)
+
+    tot_lakh = df_ana.approved_financial_lakh.sum()
+    tot_rs = tot_lakh * 1e5
+    per_day = tot_rs / (365 * n_years) if tot_rs else 0
+
+    t_mask = df_ana.activity.str.contains(
+        r"teacher|mentor|capacity|training", case=False, na=False)
+    s_mask = df_ana.activity.str.contains(
+        r"student|child|pupil|\btlm\b|teaching learning|balvatika",
+        case=False, na=False)
+    t_fin = df_ana[t_mask].approved_financial_lakh.sum() * 1e5
+    t_phy = df_ana[t_mask].approved_physical.sum()
+    s_fin = df_ana[s_mask].approved_financial_lakh.sum() * 1e5
+    s_phy = df_ana[s_mask].approved_physical.sum()
+
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Approved spend, selection", crore(tot_lakh),
+              help=lakh(tot_lakh))
+    k2.metric("Spend per day", f"₹{per_day:,.0f}",
+              help=f"Approved spend spread over 365 days x {n_years} "
+                   f"selected year(s)")
+    k3.metric("Teacher-facing spend per unit",
+              f"₹{t_fin / t_phy:,.0f}" if t_phy else "n/a",
+              help=f"₹{t_fin / 1e7:,.1f} Cr on teacher-matched rows over "
+                   f"{t_phy:,.0f} physical units. Units mix teachers and "
+                   f"teacher-training days in some states, so read as an "
+                   f"order of magnitude")
+    k4.metric("Student-facing spend per unit",
+              f"₹{s_fin / s_phy:,.0f}" if s_phy else "n/a",
+              help=f"₹{s_fin / 1e7:,.1f} Cr on student-matched rows over "
+                   f"{s_phy:,.0f} physical units (mostly students)")
+    st.caption("Validated activity rows from minutes only. Teacher and "
+               "student figures divide each group's own spend by its own "
+               "physical targets, not the total outlay.")
+
+    st.subheader("Top 10 line items by approved outlay")
+    top10 = (df_ana.groupby(["activity", "category_base"])
+             .agg(phy=("approved_physical", "sum"),
+                  fin=("approved_financial_lakh", "sum"),
+                  states=("state", "nunique"))
+             .reset_index()
+             .sort_values("fin", ascending=False).head(10))
+    top10["unit_rs"] = (top10.fin / top10.phy * 1e5).where(top10.phy > 0)
+    top10 = top10.rename(columns={
+        "activity": "Line item", "category_base": "Head",
+        "phy": "Physical (approved)", "unit_rs": "Effective unit cost (Rs.)",
+        "fin": "Approved (Rs. lakh)", "states": "States"})
+    st.dataframe(
+        top10[["Line item", "Head", "Physical (approved)",
+               "Effective unit cost (Rs.)", "Approved (Rs. lakh)", "States"]]
+        .style.format({"Physical (approved)": "{:,.0f}",
+                       "Effective unit cost (Rs.)": "₹{:,.0f}",
+                       "Approved (Rs. lakh)": "₹{:,.2f}"}, na_rep="n/a"),
+        hide_index=True, use_container_width=True)
+    st.caption("Effective unit cost is total approved financial over total "
+               "approved physical for the grouped rows, converted to "
+               "rupees.")
+
+    st.subheader("TLM spend by unit cost band")
+    tlm = df_ana[df_ana.category_base == "Teaching Learning Materials"].copy()
+    if len(tlm):
+        tlm["unit_rs"] = tlm.approved_unit_cost * 1e5
+        bands = [0, 100, 200, 300, 400, 500, float("inf")]
+        labels = ["Up to ₹100", "₹101-200", "₹201-300", "₹301-400",
+                  "₹401-500", "Above ₹500"]
+        tlm["band"] = pd.cut(tlm.unit_rs, bins=bands, labels=labels,
+                             include_lowest=True)
+        bsum = (tlm.groupby("band", observed=False)
+                .agg(fin=("approved_financial_lakh", "sum"),
+                     phy=("approved_physical", "sum"),
+                     rows=("activity", "count")).reset_index())
+        cb1, cb2 = st.columns([2, 1])
+        with cb1:
+            ch_tlm = (alt.Chart(bsum)
+                      .mark_bar(color=SERIES[2], cornerRadiusTopLeft=4,
+                                cornerRadiusTopRight=4)
+                      .encode(
+                          x=alt.X("band:N", sort=labels,
+                                  title="Approved unit cost per student"),
+                          y=alt.Y("fin:Q",
+                                  title="Approved outlay (Rs. lakh)"),
+                          tooltip=[
+                              alt.Tooltip("band:N", title="Band"),
+                              alt.Tooltip("fin:Q", format=",.1f",
+                                          title="Approved (Rs. lakh)"),
+                              alt.Tooltip("phy:Q", format=",.0f",
+                                          title="Students"),
+                              alt.Tooltip("rows:Q", title="Rows")])
+                      .properties(height=320))
+            st.altair_chart(themed(ch_tlm), use_container_width=True)
+        with cb2:
+            st.dataframe(
+                bsum.rename(columns={"band": "Band",
+                                     "fin": "Approved (Rs. lakh)",
+                                     "phy": "Students", "rows": "Rows"})
+                .style.format({"Approved (Rs. lakh)": "₹{:,.1f}",
+                               "Students": "{:,.0f}"}),
+                hide_index=True, use_container_width=True)
+        st.caption("Unit costs are stored in Rs. lakh in the annexures and "
+                   "converted to rupees per student here.")
+    else:
+        st.info("No validated TLM rows in the current selection.")
