@@ -70,12 +70,19 @@ def load(mtime=None):
                 & ((phy * unit - fin).abs()
                    <= (0.05 * fin.abs()).clip(lower=0.5)))
 
+    # a hand-transcribed figure read directly off the rendered source page and
+    # reconciled against its printed total is a stronger check than the
+    # phy*unit=fin arithmetic test — trust it even when phy/unit weren't
+    # captured alongside the amount
+    p_vision = budget.get("p_verified", "").eq("vision-verified") & budget["proposed_financial_lakh"].notna()
+    a_vision = budget.get("a_verified", "").eq("vision-verified") & budget["approved_financial_lakh"].notna()
+
     budget["p_valid"] = side_ok(budget["proposed_physical"],
                                 budget["proposed_unit_cost"],
-                                budget["proposed_financial_lakh"])
+                                budget["proposed_financial_lakh"]) | p_vision
     budget["a_valid"] = side_ok(budget["approved_physical"],
                                 budget["approved_unit_cost"],
-                                budget["approved_financial_lakh"])
+                                budget["approved_financial_lakh"]) | a_vision
 
     import re as _re
     def categorize(label, code, remarks):
