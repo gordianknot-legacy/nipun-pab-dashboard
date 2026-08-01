@@ -60,7 +60,10 @@ KGBV_CODES = (6483, 6496)  # inclusive C-code span of the KGBV block
 # 86/87 schema totals FLN and PMU separately, so its printed FLN figure
 # excludes PMU; the 2026-27 FS layout folds PMU into one subtotal. These
 # heads are budgeted elsewhere and no NIPUN total covers them.
-OUTSIDE_HEADS = ("102", "36", "37", "38", "106", "134", "77", "79", "32", "48")
+# "32" is deliberately absent: Tripura 2023-24 numbers its NIPUN block 32.x,
+# so excluding that prefix would drop real NIPUN rows. The only other 32.x
+# rows in the workbook are Gujarat header rows, which carry no value.
+OUTSIDE_HEADS = ("102", "36", "37", "38", "106", "134", "77", "79", "48")
 PMU_ROW_RE = r"\bpmu\b|formation of|^\s*\d?\s*-?\s*(?:district|state) level"
 PMU_TOTAL_RE = r"total.*(?:pmu|formation of)"
 
