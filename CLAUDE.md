@@ -311,10 +311,14 @@ and the workbook has no MISMATCH rows — so any new failure is a regression,
 not background noise.
 
 **2022-23 is fully closed.** All 36 documents carrying NIPUN content
-reconcile and are `ok(vision-verified)`; the remaining 15 are addenda,
-corrigenda and the NCERT/NCPCR papers, which genuinely have no state
-annexure. Published 2022-23 approved outlay: **₹2,450.66 Cr across 36
-states**. Note the year has no `ok-ocr-fallback` or `layout-variant`
+reconcile against their printed subtotal: 30 are `ok(vision-verified)`
+and 6 (Andhra Pradesh, Jharkhand, Madhya Pradesh, Maharashtra, Punjab,
+Uttar Pradesh) are clean automated parses that already closed and were
+left alone — those six have **not** been read off the page, so do not
+describe the year as wholly vision-verified. The remaining 15 documents
+are addenda, corrigenda and the NCERT/NCPCR papers, which genuinely have
+no state annexure. Published 2022-23 approved outlay: **₹2,450.66 Cr
+across 36 states**. The year has no `ok-ocr-fallback` or `layout-variant`
 documents left, so any reappearing is a regression.
 
 Other habits that earned their keep:
