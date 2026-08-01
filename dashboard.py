@@ -295,6 +295,33 @@ with tab_over:
                    "for was approved")
     c4.metric("States / UTs in data", f"{ACT_MIN.state.nunique()}")
 
+    # "Approved, all years" and "Approved vs proposed" sum across every
+    # year in ACT_MIN, so a year with a large state-coverage gap quietly
+    # pulls both figures down without saying so. 2021-22 is missing 7
+    # states/UTs (no PAB minutes ever surfaced for them, confirmed by an
+    # independent Wayback sweep, not just an extraction gap) and 2023-24
+    # is missing 1 (Jharkhand). Name them here rather than let the totals
+    # imply full national coverage.
+    all_states = set(ACT_MIN.state.unique())
+    gap_notes = []
+    for gap_year in ("2021-22", "2023-24"):
+        if gap_year not in set(ACT_MIN.year.unique()):
+            continue
+        have = set(ACT_MIN[ACT_MIN.year == gap_year].state.unique())
+        missing = sorted(all_states - have)
+        if missing:
+            gap_notes.append(f"**{gap_year}** ({len(missing)} missing: "
+                              f"{', '.join(missing)})")
+    if gap_notes:
+        st.caption(
+            "“Approved, all years” and “Approved vs proposed” above sum "
+            "every year in the data, including years with incomplete state "
+            "coverage: " + "; ".join(gap_notes) + ". No PAB minutes have "
+            "been found for these state-years despite a dedicated search "
+            "(including a Wayback Machine sweep for 2021-22), so they are "
+            "excluded rather than estimated. The all-years totals above are "
+            "therefore a floor, not a national total.")
+
     top_cat = (A[A.year == latest].groupby("category")
                .approved_financial_lakh.sum().sort_values(ascending=False))
     if len(top_cat):
