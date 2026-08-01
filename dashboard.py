@@ -186,10 +186,14 @@ _ACT_ALL = BUDGET[BUDGET.row_type == "activity"]
 # aren't silently dropped from national totals and YoY comparisons; states
 # that already have a minutes doc keep using it exclusively (addenda there
 # are incremental top-ups, not replacements, and must not be double-counted).
+# "annexure" belongs in the same fallback: Ladakh 2022-23 publishes its
+# budget block in a separate annexure volume while its minutes carry only
+# narrative. Leaving it out dropped that UT from national totals entirely.
+_COMPANION = ["addendum", "addendum (alt)", "annexure"]
 _minutes_pairs = set(map(tuple,
     _ACT_ALL.loc[_ACT_ALL.doc_type == "minutes", ["state", "year"]].values))
 _is_primary = (_ACT_ALL.doc_type == "minutes") | (
-    _ACT_ALL.doc_type.isin(["addendum", "addendum (alt)"])
+    _ACT_ALL.doc_type.isin(_COMPANION)
     & ~_ACT_ALL[["state", "year"]].apply(tuple, axis=1).isin(_minutes_pairs))
 ACT_MIN = _ACT_ALL[_is_primary]
 # A document that carries 87.x codes, or prints its own PMU total, is telling

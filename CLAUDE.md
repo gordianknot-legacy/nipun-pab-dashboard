@@ -19,9 +19,22 @@ and re-uploaded some minutes downsampled to **72 DPI JPEG with no text
 layer**. The signature is a **uniform ~6.1 MB across unrelated states in
 one year** while the same states' other years are 12-35 MB.
 
-Ten files were affected across 2022-23 and 2023-24; the degraded copies now
-live in `pdfs/lowres_2025_reupload/`. This is a bad migration, not bad
+Eleven files were affected across 2022-23 and 2023-24; the degraded copies
+now live in `pdfs/lowres_2025_reupload/`. This is a bad migration, not bad
 scanning, and it is recoverable.
+
+**Do not trust the recovery script's WANT list as the census of affected
+files.** *Manipur 2022-23* sat at exactly 6,139,904 bytes with every
+annexure page a 280x162 pt page holding a 280x162 px bitmap, and it was
+never in `fetch_2223_originals.py` — so it stayed unreadable for a year
+while its Log row read `OK(reconciled)`. Recovered to 79.3 MB and, better
+than the usual outcome, **fully digital with a real text layer**. Sweep
+by file size across the whole year, not by the list someone wrote earlier:
+
+```python
+# any file within a few KB of 6.1 MB is a re-upload until proven otherwise
+sum(1 for f in Path("pdfs").glob("*.pdf") if 6.0e6 < f.stat().st_size < 6.3e6)
+```
 
 **Recovery route.** The old `dsel.education.gov.in` copies survive in the
 Wayback Machine, and `wayback_manifest.json` (from an earlier coverage
@@ -81,10 +94,19 @@ Do not assume `86.x` / `87.x`. Observed:
 | Himachal 2023-24 | **`21.x`** | **`22.x`** | one file |
 | Sl.No. layouts | running numbers (62-66, 86) | same sequence | Punjab, DN&DD |
 | 2026-27 FS | no codes at all | folded into FS subtotal | vision-rebuilt states |
+| Blank code column | block heading only (`86.0`, `87.0`) | same | Puducherry 2022-23 |
 
 Assume nothing about numbering; read it off the page each time. What
 matters downstream is only whether a `87.x`-style PMU marker exists, so
 assign one when staging a layout that lacks it.
+
+### Some annexures print only one side
+Most print `PROPOSAL` and `FINAL APPROVED OUTLAY` side by side. **Kerala
+2022-23 prints only `Final Approved Outlay`** — there are no proposal
+columns on the page at all. Record the proposed side as null and say so in
+the module docstring, or a later reader will treat the gap as a capture
+failure and try to "restore" it. Check the column headers before
+concluding a side was lost.
 
 Consequences:
 
@@ -116,6 +138,40 @@ level), `36`, `37`, `38`, `106`, `134`, `77`, `79`, `48`.
 Getting this wrong is expensive: a naive "sum everything vs the FLN total"
 check reported 18 false failures on correct data.
 
+### A missing anchor is usually a truncated LABEL, not a missing figure
+Six 2022-23 documents (Assam, J&K, Karnataka, Odisha, Tamil Nadu, West
+Bengal) reconciled fine yet carried no `fln_total_printed_approved`. In
+every case the subtotal row existed with correct values, but its label had
+been captured as `Total of Nipun` or `Total of Nipun Bharat`, and the
+anchor regex requires the full `total of nipun bharat mission (fln)`. The
+apply script then logged "no FLN subtotal row" and skipped the file.
+
+**Repair the label, do not hardcode the figure into the Log.** Completing
+the label makes the anchor regenerate itself on every future run; writing
+the number in by hand leaves nothing to catch the next regression.
+
+Sometimes the truncation is in the *source*: Karnataka's page genuinely
+breaks the label across the p160/p161 boundary, printing "Total of Nipun
+Bharat" then "Mission (FLN)". The capture was faithful; the anchor still
+needed the full form. Either way the fix is the same.
+
+### The source PDF sometimes clips its own cells
+Distinct from OCR damage and from our capture. *Assam 2022-23 p194* prints
+its grand total as `14973.` and `1426` — and the PDF's **text layer stores
+exactly those truncated strings**, on a page with no images and no OCR
+layer. *Tamil Nadu 2022-23 p885* clips its approved grand total to `6254`.
+The document was generated that way; there is nothing further to read at
+any DPI.
+
+Record the chain, and say in the row's remark that the cell is clipped and
+the figure is reconstructed. Check first that the *subtotal the
+reconciliation anchors on* is fully printed — in both these cases it was,
+so the reconciliation still rests on a real read.
+
+**Before concluding a page is a scan, check image coverage.** `0 images,
+0% coverage` means the file is digital and its text layer IS the source;
+§2's warning is about OCR layers over scans and does not apply there.
+
 **A subtotal is not the mission total.** `Sub Total (5.1.1 - Nipun Bharat
 Mission (FLN))` excludes PMU; `Total of NIPUN Bharat Mission` includes it.
 Manipur 2024-25 was wrongly called a defect on exactly this confusion.
@@ -141,7 +197,41 @@ Manipur 2024-25 was wrongly called a defect on exactly this confusion.
 6. **Proposed total copied into the approved column** — *UP 2021-22 was
    flagged for years as "a genuine source discrepancy". It was not.* The
    page prints proposed 18335.23 / approved 18333.11 and the extractor
-   carried the proposed figure on both sides.
+   carried the proposed figure on both sides. *West Bengal 2022-23 had it
+   on **both** its totals* (FLN 10280.82 and grand 10300.82 shown on each
+   side, against printed 10276.6 and 10296.6). The tell is a total row
+   whose two sides are identical while the activity rows beneath it are
+   not — cheap to test for, so test for it:
+
+   ```python
+   # totals identical on both sides but rows differ => suspect mode 6
+   t.proposed_financial_lakh.eq(t.approved_financial_lakh) &
+   ~acts.proposed_financial_lakh.eq(acts.approved_financial_lakh).all()
+   ```
+7. **Rows scraped from the narrative body instead of the annexure** — see
+   the two-cluster note below. *Haryana, Kerala and Puducherry 2022-23.*
+8. **Rows from a different annexure wearing a NIPUN label** — the most
+   dangerous mode, because nothing about the row looks wrong. *Sikkim
+   2022-23 carried two rows labelled "Capacity building of Teachers of
+   Grades I to V" at p172; the page actually prints `151.1` DIKSHA and
+   `149.2` DIETs.* They inflated the state's NIPUN proposal by 8.371 lakh
+   and no arithmetic check could have caught it — the FLN subtotal closed
+   without them. Only opening the page settles it. **When a row's
+   `pdf_page` is far from the annexure span, verify what the page actually
+   prints before trusting its label.**
+
+### The two-cluster pattern when locating annexures
+Anchor-text scans on 2022-23 minutes reliably return **two** clusters: an
+early one in the narrative body (roughly pp 7-30, where NIPUN is
+discussed in prose) and a late one at the real budget annexure (pp
+136-138, 199-200, 374-376, 674-677 …). The original extractor repeatedly
+locked onto the *early* cluster and published prose fragments as budget
+rows — Haryana's only "total" came from p28, Kerala's from p24,
+Puducherry's from p24, while their annexures sat at p375, p199 and p101.
+
+**Always take the late cluster.** `locate_2223_pages.py` prints both so
+the choice is visible; `render_2223_pass.py` holds the resolved span per
+state.
 
 ---
 
@@ -234,7 +324,15 @@ OVERS     = {row_uid: {field: value}}   # repair in place
 ADDS      = [row dict with row_uid + after_uid]
 DROPS     = [row_uid]
 CONFIRMED = [row_uid]                   # read and left as-is, documentation
+LOG       = {source_file: {field: value}}   # Log edits for a companion file
 ```
+
+`LOG` exists because a module sometimes learns something about a file it
+adds no rows to. Ladakh 2022-23 is the case: its minutes carry only
+narrative, its budget block lives in a separate annexure volume, and the
+minutes' standing status of `layout-variant(needs review)` was wrong —
+there is no layout to parse. It is applied last, so it overrides the
+automatic subtotal registration.
 
 Rules:
 
@@ -304,9 +402,18 @@ printed and say so in the docstring, or someone will "fix" it later.
 
 ## 10. Dashboard notes
 
-- `ACT_MIN` = activity rows from the primary minutes, falling back to an
-  addendum only where no minutes exist. Duplicate PDF downloads
-  (`*_NNNNN.pdf`) are tagged `minutes (alt)` and correctly excluded.
+- `ACT_MIN` = activity rows from the primary minutes, falling back to a
+  **companion doc** (`addendum`, `addendum (alt)`, `annexure`) only where
+  no minutes rows exist. Duplicate PDF downloads (`*_NNNNN.pdf`) are
+  tagged `minutes (alt)` and correctly excluded.
+- **The fallback list must cover every companion `doc_type` in the
+  workbook.** `annexure` was missing from it, and since
+  `Ladakh_2022-23_annexure.pdf` is the only file carrying that doc_type,
+  **all of Ladakh 2022-23 was silently absent from the app** — national
+  totals, YoY comparisons, state explorer, everything — while its Log row
+  cheerfully read `OK(reconciled)`. A doc_type that appears exactly once
+  is the easy one to forget; check `BUDGET.doc_type.value_counts()`
+  against the filter whenever a new one appears.
 - `STATUS_LABEL` must map **every** Log status. `ok(vision-verified)` was
   missing, so 18 state-years fell through to "Partial" and their files were
   listed as needing attention — the most rigorously verified data in the
