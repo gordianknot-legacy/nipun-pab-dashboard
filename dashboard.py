@@ -56,6 +56,14 @@ LEAK_RE = (r"head cook|assistant cook|\bwarden\b|part time teacher"
 LEAK_CAT = "Non-NIPUN row (leaked, excluded from totals)"
 KGBV_CODES = (6483, 6496)  # inclusive C-code span of the KGBV block
 
+# Scope of the printed NIPUN subtotal, which varies by annexure layout. The
+# 86/87 schema totals FLN and PMU separately, so its printed FLN figure
+# excludes PMU; the 2026-27 FS layout folds PMU into one subtotal. These
+# heads are budgeted elsewhere and no NIPUN total covers them.
+OUTSIDE_HEADS = ("102", "36", "37", "38", "106", "134", "77", "79", "32", "48")
+PMU_ROW_RE = r"\bpmu\b|formation of|^\s*\d?\s*-?\s*(?:district|state) level"
+PMU_TOTAL_RE = r"total.*(?:pmu|formation of)"
+
 st.set_page_config(page_title="NIPUN Bharat PAB Minutes",
                    layout="wide", page_icon="📗")
 
@@ -125,6 +133,11 @@ def load(mtime=None):
     # extractor-generated placeholder labels (not source text) lose em dashes
     budget["activity"] = budget["activity"].astype(str).str.replace(
         "(OCR — identify", "(OCR, identify", regex=False)
+    _pre = budget["code"].astype(str).str.split(".").str[0]
+    _lab = budget["activity"].astype(str).str.lower()
+    budget["outside_block"] = _pre.isin(OUTSIDE_HEADS)
+    budget["is_pmu_row"] = _pre.eq("87") | _lab.str.contains(
+        PMU_ROW_RE, regex=True, na=False)
     budget["quality"] = budget["status"].map(STATUS_LABEL).fillna(budget["status"])
     budget["doc_label"] = budget["doc_type"].map(DOC_LABEL).fillna(budget["doc_type"])
     try:
@@ -158,6 +171,15 @@ _is_primary = (_ACT_ALL.doc_type == "minutes") | (
     _ACT_ALL.doc_type.isin(["addendum", "addendum (alt)"])
     & ~_ACT_ALL[["state", "year"]].apply(tuple, axis=1).isin(_minutes_pairs))
 ACT_MIN = _ACT_ALL[_is_primary]
+# A document that carries 87.x codes, or prints its own PMU total, is telling
+# us PMU is totalled separately from the FLN figure the Log records. Without
+# either signal the PMU lines sit inside that figure.
+PMU_OUTSIDE = (
+    set(BUDGET.loc[BUDGET.code.astype(str).str.split(".").str[0].eq("87"),
+                   "source_file"])
+    | set(BUDGET.loc[(BUDGET.row_type == "total")
+                     & BUDGET.activity.astype(str).str.lower().str.contains(
+                         PMU_TOTAL_RE, regex=True, na=False), "source_file"]))
 CAT_ORDER = [c for c, _ in CATEGORIES] + ["Other / unidentified"]
 CAT_COLOR = dict(zip(CAT_ORDER, SERIES[:6] + [MUTED]))
 
@@ -609,11 +631,14 @@ with tab_cov:
         st.dataframe(LOG, hide_index=True, width="stretch")
 
     st.subheader("Do the published rows add up to the printed total")
-    st.caption("For every document that prints a NIPUN subtotal, this sums "
-               "the validated rows that feed the national totals and "
-               "compares them with that printed figure. It is recomputed on "
-               "load, so a row added or duplicated after extraction shows up "
-               "here rather than sitting silently in the headline.")
+    st.caption("For every document that prints a NIPUN subtotal, this re-adds "
+               "the validated rows that figure is supposed to cover and "
+               "compares them with it. Rows budgeted under a head the "
+               "subtotal does not span are left out, and where the annexure "
+               "totals PMU separately its PMU lines are left out too. It is "
+               "recomputed on load, so a row added or duplicated after "
+               "extraction shows up here rather than sitting silently in the "
+               "headline.")
     rec_yr = st.selectbox("AWP&B year", YEARS, index=len(YEARS) - 1,
                           key="rec_year")
     printed = LOG.set_index("source_file")["fln_total_printed_approved"]
@@ -621,10 +646,13 @@ with tab_cov:
     rec = []
     for src, g in _rec_src.groupby("source_file"):
         pv = printed.get(src)
-        summed = g.approved_financial_lakh.sum()
+        keep = ~g.outside_block
+        if src in PMU_OUTSIDE:
+            keep &= ~g.is_pmu_row
+        summed = g.loc[keep, "approved_financial_lakh"].sum()
         rec.append({"State / UT": g.state.iloc[0],
-                    "Rows shown": len(g),
-                    "Sum of rows shown": round(summed, 2),
+                    "Rows covered": int(keep.sum()),
+                    "Sum of those rows": round(summed, 2),
                     "Printed total": round(pv, 2) if pd.notna(pv) else None,
                     "Difference": round(summed - pv, 2) if pd.notna(pv) else None})
     rdf = pd.DataFrame(rec).sort_values("State / UT")
@@ -651,7 +679,7 @@ with tab_cov:
             st.warning(f"{n_open} document(s) in {rec_yr} do not reconcile. "
                        "Treat those state totals as unconfirmed.")
         st.dataframe(
-            rdf.style.format({"Sum of rows shown": "{:,.2f}",
+            rdf.style.format({"Sum of those rows": "{:,.2f}",
                               "Printed total": "{:,.2f}",
                               "Difference": "{:+,.2f}"}, na_rep="n/a")
             .map(lambda v: f"color:{STATUS['critical']}; font-weight:700"
