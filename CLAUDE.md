@@ -34,6 +34,13 @@ new). It has matched every time so far, which is what lets existing
 `pdf_page` references survive, but a mismatch would silently corrupt every
 row's page reference.
 
+### Some states have BOTH a damaged and an intact copy on disk
+Where a `_NNNNN.pdf` variant exists it is sometimes the *good* one.
+Himachal Pradesh 2023-24 has `..._minutes.pdf` at 6.1 MB (a re-upload,
+parses to no NIPUN content) and `..._minutes_9001.pdf` at 194 MB (intact,
+and what the workbook cites). Check sizes across variants before assuming
+a state is unreadable, and cite the file you actually read in `SF`.
+
 ### Files that genuinely cannot be read
 If the embedded image is small *in the original too*, stop. Rendering at
 higher DPI only upscales a bitmap with no detail. Check with
@@ -71,6 +78,7 @@ Do not assume `86.x` / `87.x`. Observed:
 | Short form | `86.1`, `86.2`, `86.4` | `87.1`, `87.2` | Meghalaya and Sikkim 2022-23 |
 | Prabandh | `5.9.x`, `5.8.x`, `4.6.x` … | inside the FS subtotal | 2025-26, 2026-27 |
 | Tripura 2023-24 | **`32.x`** | **`34.x`** | one file |
+| Himachal 2023-24 | **`21.x`** | **`22.x`** | one file |
 | Sl.No. layouts | running numbers (62-66, 86) | same sequence | Punjab, DN&DD |
 | 2026-27 FS | no codes at all | folded into FS subtotal | vision-rebuilt states |
 
