@@ -304,9 +304,9 @@ python regression_battery.py    # must print BATTERY GREEN
 python qa_workbook.py           # MISMATCH files should be none
 ```
 
-Then the reconciliation audit across all years. As of the 2022-23 pass,
-**177 of 177 documents that print a NIPUN subtotal reconcile against it**
-(2021-22 6, 2022-23 36, 2023-24 34, 2024-25 21, 2025-26 45, 2026-27 35),
+Then the reconciliation audit across all years. As of the 2021-22 pass,
+**202 of 202 documents that print a NIPUN subtotal reconcile against it**
+(2021-22 31, 2022-23 36, 2023-24 34, 2024-25 21, 2025-26 45, 2026-27 35),
 and the workbook has no MISMATCH rows — so any new failure is a regression,
 not background noise.
 
@@ -320,6 +320,18 @@ are addenda, corrigenda and the NCERT/NCPCR papers, which genuinely have
 no state annexure. Published 2022-23 approved outlay: **₹2,450.66 Cr
 across 36 states**. The year has no `ok-ocr-fallback` or `layout-variant`
 documents left, so any reappearing is a regression.
+
+**2021-22 is also fully closed**, the roughest year to date (see §11):
+one state's entire figure was a different state's data under a portal
+misfiling, two large states were wrongly marked `no-nipun-found` on pure
+scans with no text layer, and one document had a column-shifted row that
+had to be rebuilt rather than repaired. All 31 documents carrying NIPUN
+content now reconcile: 27 are `ok(vision-verified)`, 4 (Bihar, Goa,
+Haryana, Tamil Nadu, UP) were clean automated parses left alone. Published
+2021-22 approved outlay: **₹2,059.22 Cr across 29 states**, up from an
+undercounted, partly-wrong total across only a handful of verified
+states. The year has no `ok-partial`, `ok-ocr-fallback` or
+`layout-variant` documents left, so any reappearing is a regression.
 
 Other habits that earned their keep:
 
@@ -475,7 +487,118 @@ printed and say so in the docstring, or someone will "fix" it later.
 
 ---
 
-## 11. Commit conventions
+## 11. The 2021-22 pass: the first year has its own failure modes
+
+2021-22 is NIPUN Bharat's launch year and the ministry's document
+generation was less standardised than later years. All of the below were
+found closing out this year; none showed up in 2022-23 onward.
+
+### `no-nipun-found` from a keyword scan is not proof of absence
+The keyword scan that assigns `no-nipun-found` searches the PDF's text
+layer. On a pure scan with **zero characters**, that scan finds nothing
+by construction, regardless of what the document contains. Three
+2021-22 files were wrongly marked this way:
+
+- **Maharashtra** — 12.2 MB, 191 pages, 0 characters. Its real NIPUN
+  figure (₹15,051.36 lakh) was sitting in the file the whole time, found
+  by a full-file OCR sweep.
+- **Telangana** — 46.7 MB, 301 pages, 0 characters. ₹4,176.95 lakh,
+  likewise found only by OCR sweep, and independently corroborated by a
+  narrative statement of the same figure 230 pages earlier.
+- **National Achievement Survey** — genuinely has zero NIPUN content
+  (confirmed by full-text scan), but was flagged `layout-variant` rather
+  than `no-nipun-found`; there was no layout to parse because it isn't a
+  state document at all.
+
+**Before trusting `no-nipun-found` on a textless file, check the image
+coverage is real content, then run a full-file OCR sweep before
+concluding there is nothing to find.** A 0-character file and an
+empty file are not the same thing.
+
+### An image "tagged" 72 DPI is not necessarily unreadable
+§1 says a small image in the original stays small at any render DPI —
+true, but the DPI figure computed from `img_width / placed_width_pt * 72`
+on a single sampled page is not reliable evidence either way. Maharashtra
+2021-22's embedded images measured 72 DPI on that formula and rendered
+**perfectly legibly at 300 DPI** — full tables, clean text, no artefacts.
+Always render and look before writing a file off as unreadable; the
+formula is a hint, not a verdict.
+
+### The ministry's own portal can serve the wrong file
+`Kerala_2021-22_minutes.pdf` and `Haryana_2021-22_minutes.pdf` were
+byte-identical — same md5, 283 pages, cover page reads "for the State of
+Haryana." Re-fetching Kerala's own portal URL directly returned the same
+Haryana bytes: **this is the ministry's live server serving the wrong
+document**, not a stale download or a caching artefact on our side.
+Every Kerala 2021-22 figure ever published had been Haryana's, doubling
+₹3,345.72 lakh into the national total. The genuine Kerala minutes only
+existed in the Wayback archive of the old site. Verify a re-fetch
+independently before trusting that "the portal has it" means "the portal
+has the right one."
+
+### Byte-identical files across DIFFERENT states need a decision, not both
+Distinct from the reupload duplicates in §1 (same state, degraded vs
+clean copy), two 2021-22 pairs are identical files **shared by two
+different Log entries**:
+
+- `Dadra-and-Nagar-Haveli_2021-22_minutes.pdf` and
+  `Daman-and-Diu_2021-22_minutes.pdf` — genuinely the same minutes
+  document for the merged UT, filed under both legacy names. Rows belong
+  under one filename only, or the UT is double-counted.
+- `Maharashtra_2021-22_minutes.pdf` / `_9001` and
+  `Telangana_2021-22_minutes.pdf` / `_9001` — same content, alt-copy
+  downloads. These already fall out of `ACT_MIN` via the `doc_type`
+  fallback, but their Log entries still need to agree with the primary
+  file's reconciliation status rather than sitting at `no-nipun-found`.
+
+Run a full md5 sweep across `pdfs/*.pdf` before scoping a pass — it is
+one line and it catches this class of bug immediately:
+```python
+import hashlib, collections
+h = collections.defaultdict(list)
+for f in Path("pdfs").glob("*.pdf"):
+    h[hashlib.md5(f.read_bytes()).hexdigest()].append(f.name)
+{k: v for k, v in h.items() if len(v) > 1}
+```
+
+### A third annexure shape: the narrative report with a single figure column
+Meghalaya, Nagaland, Maharashtra and (for its FLN section specifically)
+Telangana 2021-22 are not `86.x`/`87.x` annexures at all. They are prose
+reports structured as numbered activity headings ("2) Foundational
+Literacy and Numeracy: ... An outlay of Rs. X lakh was estimated..."),
+each followed by its own small table. No `86.` or `87.` codes appear
+anywhere in the file, so the standard anchor scan finds nothing — this is
+what a `layout-variant` flag looks like when it's telling the truth.
+
+These tables print **one** figure column (Physical / Unit Cost /
+Financial), not a Proposal/Approved pair — the same approved-only
+convention as Kerala, just inside a different document shape. The
+narrative sentence right before the table states the same grand total
+the table computes to, which is a free corroboration check every time.
+
+### Column-shift garbling: a captured value in the wrong field entirely
+Distinct from every failure mode in §5 — not a missing row, not a wrong
+row, but a **shifted** row. Delhi 2021-22's 86.1 was captured with its
+unit cost (0.003) sitting in the `proposed_financial_lakh` field and its
+real proposed financial (2556.975) sitting in `approved_financial_lakh`.
+Nothing about the stored row was internally consistent enough to repair
+with `OVERS`; both defective rows had to be dropped and rebuilt whole
+from the page. The tell was a proposed/approved pair where one side
+looks like a unit cost and the other like a value from a different row
+entirely — check the shape of the numbers, not just their presence.
+
+### `LOG` targeting the module's own `SF` is fine
+The `LOG` hook (see §8) was introduced for a module correcting a
+*different* file's Log entry, but it works identically when `SF` and the
+`LOG` key are the same file with **zero** `ADDS`/`OVERS` — e.g. National
+Achievement Survey, which needed only a status correction and no budget
+rows at all. Every module still needs `SF` defined, even a documentation-
+only one, because the apply script's auto-registration loop reads
+`m.SF` unconditionally across all modules.
+
+---
+
+## 12. Commit conventions
 
 No AI attribution or co-author trailers in commits or PR bodies. Commit
 messages explain *why* a value changed and cite the printed figures.
