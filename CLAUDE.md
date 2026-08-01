@@ -233,6 +233,38 @@ Puducherry's from p24, while their annexures sat at p375, p199 and p101.
 the choice is visible; `render_2223_pass.py` holds the resolved span per
 state.
 
+### Locating the block in a file with no text layer at all
+Arunachal (247 MB) and Mizoram (201 MB) 2022-23 are 300 DPI scans with
+**zero characters** — no anchor text, and no captured rows to give a
+window. Two things that work:
+
+1. **The annexure is a contiguous run of LANDSCAPE pages.** One instant
+   pass finds it: Arunachal p180-239, Mizoram p122-201.
+   ```python
+   [p+1 for p in range(len(doc)) if doc[p].rect.width > doc[p].rect.height]
+   ```
+2. **Then OCR every page in that band, not a sample.** A step-3 grid over
+   Mizoram's 80-page band returned nothing, because the NIPUN block is
+   only **two pages wide** inside it. Coarse grids will step straight over
+   it. `find_pages_ocr.py` on the full file found Arunachal at p208 and
+   Mizoram at p162-163.
+
+Beware also that `find_pages_ocr.py` block-buffers when redirected — its
+output file stays 0 bytes for the whole run, which looks like a hang.
+
+### The narrative often states the total, and it is a free second source
+Several 2022-23 minutes give the NIPUN outlay in prose in the early
+cluster, and it matches the annexure grand total exactly:
+
+| State | Narrative | Printed annexure grand total |
+|---|---|---|
+| Arunachal Pradesh | p23, "Rs. 627.44 lakh" | 627.44 approved |
+| Mizoram | p26, "Rs. 502.19 lakh" | 502.19 approved |
+| Ladakh | p29, "Rs.74.9 lakh" | 74.9 approved |
+
+Read it before opening the annexure. It costs nothing, and a vision read
+that lands on a different figure is telling you to look again.
+
 ---
 
 ## 6. The additions.csv trap
@@ -272,10 +304,18 @@ python regression_battery.py    # must print BATTERY GREEN
 python qa_workbook.py           # MISMATCH files should be none
 ```
 
-Then the reconciliation audit across all years. As of the 2023-24 pass,
-**75 of 75 documents that print a NIPUN subtotal reconcile against it**,
+Then the reconciliation audit across all years. As of the 2022-23 pass,
+**177 of 177 documents that print a NIPUN subtotal reconcile against it**
+(2021-22 6, 2022-23 36, 2023-24 34, 2024-25 21, 2025-26 45, 2026-27 35),
 and the workbook has no MISMATCH rows — so any new failure is a regression,
 not background noise.
+
+**2022-23 is fully closed.** All 36 documents carrying NIPUN content
+reconcile and are `ok(vision-verified)`; the remaining 15 are addenda,
+corrigenda and the NCERT/NCPCR papers, which genuinely have no state
+annexure. Published 2022-23 approved outlay: **₹2,450.66 Cr across 36
+states**. Note the year has no `ok-ocr-fallback` or `layout-variant`
+documents left, so any reappearing is a regression.
 
 Other habits that earned their keep:
 
