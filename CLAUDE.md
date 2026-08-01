@@ -252,6 +252,16 @@ Page location: `render_2324_tight.py` anchors on annexure text rather than
 the captured-page window (that cut Arunachal from 11 pages to 3). For pure
 scans, fall back to the capture window ±1.
 
+When a state has **no captured rows at all** there is no window to fall
+back on, and a textless file gives the anchor scan nothing to match. Use
+`find_pages_ocr.py <pdf>` — it renders each page at 110 DPI, OCRs it and
+reports anchor hits. That located Puducherry 2023-24 at p64-68 in a file
+that had produced zero rows, and its OCR of the total line
+(`Total of NIPUN Bharat 3121 2814`) matched the printed 312.13 / 281.44
+once the decimal point was restored. A module whose first ADD has no
+existing row to anchor to will log "anchor missing, appending"; that is
+expected for a from-scratch state, not an error.
+
 ---
 
 ## 9. Source-internal inconsistencies: record as printed
