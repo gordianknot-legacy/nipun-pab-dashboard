@@ -23,6 +23,9 @@ STATUS = {"good": "#0ca30c", "warning": "#fab219",
 
 STATUS_LABEL = {
     "ok": "✓ Clean",
+    # hand-read off the rendered page and reconciled against the printed
+    # totals, so at least as trustworthy as a clean automated parse
+    "ok(vision-verified)": "✓ Clean (vision-verified)",
     "ok-ocr-fallback(verify numbers)": "◐ OCR, verify numbers",
     "ok-partial(no totals captured)": "◔ Partial",
     "ok-partial(block end not detected)": "◔ Partial",
@@ -51,6 +54,7 @@ LEAK_RE = (r"head cook|assistant cook|\bwarden\b|part time teacher"
            r"|electricity|water charges|food/?lodging|boundary wall|toilet"
            r"|preparatory camp|\bkgbv\b|\bhostel\b|medical care")
 LEAK_CAT = "Non-NIPUN row (leaked, excluded from totals)"
+KGBV_CODES = (6483, 6496)  # inclusive C-code span of the KGBV block
 
 st.set_page_config(page_title="NIPUN Bharat PAB Minutes",
                    layout="wide", page_icon="📗")
@@ -87,6 +91,13 @@ def load(mtime=None):
     import re as _re
     def categorize(label, code, remarks):
         s = str(label).lower()
+        # The KGBV / residential block sits in the same annexure and its line
+        # items carry C6483-C6496 codes. Several of them ("Maintenance",
+        # "Miscellaneous", "Capacity Building") are too generic to quarantine
+        # by name without catching genuine NIPUN rows, so key on the code.
+        cc = _re.search(r"\(c(\d{4})\)", s)
+        if cc and KGBV_CODES[0] <= int(cc.group(1)) <= KGBV_CODES[1]:
+            return LEAK_CAT
         if _re.search(LEAK_RE, s):
             return LEAK_CAT
         if str(code).startswith("87"):
@@ -131,6 +142,7 @@ def load(mtime=None):
     return budget, narrative, log
 
 
+import datetime as _dt
 import os as _os
 BUDGET, NARRATIVE, LOG = load(_os.path.getmtime(WB))
 _ACT_ALL = BUDGET[BUDGET.row_type == "activity"]
@@ -186,8 +198,9 @@ with st.sidebar:
         f"**◐ OCR, verify numbers**")
     st.divider()
     st.markdown("**Reading the quality marks**\n\n"
-                "✓ parsed clean · ◐ parsed via OCR (verify before quoting) · "
-                "◔ partial · ✗ unparsed scan")
+                "✓ parsed clean, or hand-read off the page and reconciled "
+                "against its printed total · ◐ parsed via OCR (verify before "
+                "quoting) · ◔ partial · ✗ unparsed scan")
     st.divider()
     st.caption("Built from NIPUN_Bharat_PAB_master.xlsx · "
                "re-run `python parallel_extract.py` after new downloads")
@@ -469,7 +482,8 @@ with tab_cov:
                "state and year produced NIPUN budget rows. ◇ means the data "
                "came from a companion document (addendum or annexure volume) "
                "rather than the minutes themselves.")
-    marks = {"✓ Clean": "✓", "◐ OCR, verify numbers": "◐", "◔ Partial": "◔"}
+    marks = {"✓ Clean": "✓", "✓ Clean (vision-verified)": "✓",
+             "◐ OCR, verify numbers": "◐", "◔ Partial": "◔"}
     act_all = BUDGET[BUDGET.row_type == "activity"]
     src_status = act_all.groupby(["state", "year"]).quality.apply(set)
     from_minutes = (act_all[act_all.doc_label.str.startswith("Minutes")]
@@ -497,7 +511,10 @@ with tab_cov:
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("State-years covered", f"{covered} of {total_cells}",
               help="At least one parsed document with NIPUN rows")
-    m2.metric("Parsed clean", f"{int(counts.get('✓', 0))}")
+    m2.metric("Parsed clean", f"{int(counts.get('✓', 0))}",
+              help="Parsed cleanly from the document text, or hand-read off "
+                   "the rendered page and reconciled against its printed "
+                   "totals")
     m3.metric("Via OCR or partial",
               f"{int(counts.get('◐', 0) + counts.get('◔', 0) + counts.get('◇', 0))}",
               help="Usable but verify before quoting")
@@ -539,10 +556,12 @@ with tab_cov:
     st.dataframe(sty, width="stretch", height=38 * len(grid))
 
     with st.expander(f"Why cells are missing ({int(counts.get('✗', 0))})"):
-        st.caption("Two causes. Either the ministry never published that "
-                   "year's minutes on its portal (checked against the "
-                   "Wayback Machine archive too), or the published file is "
-                   "an unreadable scan.")
+        st.caption("Three causes. The ministry never published that year's "
+                   "minutes on its portal (checked against the Wayback "
+                   "Machine archive too), or the published file is an "
+                   "unreadable scan, or the scan was legible enough to find "
+                   "the annexure but not to recover any activity line, "
+                   "leaving only a garbled total.")
         import re as _re2
         def safe_name(s):
             return _re2.sub(r"[^A-Za-z0-9&]+", "-", s).strip("-")
@@ -562,15 +581,24 @@ with tab_cov:
                 if matches:
                     sts = LOG[LOG.source_file.isin(matches)].status.map(
                         STATUS_LABEL).fillna("").tolist()
-                    reason = "document exists but is unreadable, " + \
-                             ", ".join(sorted(set(x for x in sts if x)))
+                    # some of these scans did yield rows, but only unusable
+                    # total lines with no recoverable activity detail
+                    stub = BUDGET[BUDGET.source_file.isin(matches)]
+                    if len(stub):
+                        reason = ("annexure located but no activity line "
+                                  "could be recovered, only "
+                                  f"{len(stub)} unusable total row(s)")
+                    else:
+                        reason = "document exists but is unreadable, " + \
+                                 ", ".join(sorted(set(x for x in sts if x)))
                 else:
                     reason = "never published on the ministry portal"
                 reasons.append({"State / UT": s, "Year": y, "Reason": reason})
         st.dataframe(pd.DataFrame(reasons), hide_index=True, width="stretch")
 
     with st.expander("Files needing attention"):
-        flg = LOG[~LOG.status.isin(["ok", "no-nipun-found"])].copy()
+        flg = LOG[~LOG.status.isin(["ok", "ok(vision-verified)",
+                                    "no-nipun-found"])].copy()
         flg["quality"] = flg.status.map(STATUS_LABEL).fillna(flg.status)
         st.dataframe(flg[["source_file", "quality", "total_check",
                           "budget_rows", "source_url"]],
@@ -579,6 +607,58 @@ with tab_cov:
                          "Source PDF", display_text="open")})
     with st.expander("Full processing log"):
         st.dataframe(LOG, hide_index=True, width="stretch")
+
+    st.subheader("Do the published rows add up to the printed total")
+    st.caption("For every document that prints a NIPUN subtotal, this sums "
+               "the validated rows that feed the national totals and "
+               "compares them with that printed figure. It is recomputed on "
+               "load, so a row added or duplicated after extraction shows up "
+               "here rather than sitting silently in the headline.")
+    rec_yr = st.selectbox("AWP&B year", YEARS, index=len(YEARS) - 1,
+                          key="rec_year")
+    printed = LOG.set_index("source_file")["fln_total_printed_approved"]
+    _rec_src = ACT_MIN[(ACT_MIN.year == rec_yr) & ACT_MIN.a_valid]
+    rec = []
+    for src, g in _rec_src.groupby("source_file"):
+        pv = printed.get(src)
+        summed = g.approved_financial_lakh.sum()
+        rec.append({"State / UT": g.state.iloc[0],
+                    "Rows shown": len(g),
+                    "Sum of rows shown": round(summed, 2),
+                    "Printed total": round(pv, 2) if pd.notna(pv) else None,
+                    "Difference": round(summed - pv, 2) if pd.notna(pv) else None})
+    rdf = pd.DataFrame(rec).sort_values("State / UT")
+    if len(rdf):
+        def verdict(d):
+            if pd.isna(d):
+                return "no printed total captured"
+            if abs(d) <= 0.02:
+                return "closes exactly"
+            return "does not close"
+        rdf["Check"] = rdf["Difference"].map(verdict)
+        n_close = int((rdf.Check == "closes exactly").sum())
+        n_open = int((rdf.Check == "does not close").sum())
+        n_none = int((rdf.Check == "no printed total captured").sum())
+        r1, r2, r3 = st.columns(3)
+        r1.metric("Close on the printed total", n_close)
+        r2.metric("Do not close", n_open,
+                  help="A gap here means the rows shown and the printed "
+                       "subtotal disagree, so at least one of them is wrong")
+        r3.metric("No printed total to check against", n_none,
+                  help="Usually a scan where the subtotal line itself was "
+                       "not recoverable")
+        if n_open:
+            st.warning(f"{n_open} document(s) in {rec_yr} do not reconcile. "
+                       "Treat those state totals as unconfirmed.")
+        st.dataframe(
+            rdf.style.format({"Sum of rows shown": "{:,.2f}",
+                              "Printed total": "{:,.2f}",
+                              "Difference": "{:+,.2f}"}, na_rep="n/a")
+            .map(lambda v: f"color:{STATUS['critical']}; font-weight:700"
+                 if v == "does not close" else
+                 (f"color:{STATUS['good']}" if v == "closes exactly"
+                  else f"color:{MUTED}"), subset=["Check"]),
+            hide_index=True, width="stretch", height=38 * min(len(rdf) + 1, 20))
 
     st.subheader("Value verification tiers")
     st.caption("Every published number carries how it was confirmed. "
@@ -593,22 +673,75 @@ with tab_cov:
     ]).replace("", "unverified").value_counts()
     if len(tiers):
         tdf = tiers.rename_axis("tier").reset_index(name="values")
-        tdf["share"] = (tdf["values"] / tdf["values"].sum() * 100).round(1)
-        c1, c2 = st.columns([1, 2])
+        total_sides = int(tdf["values"].sum())
+        tdf["share"] = (tdf["values"] / total_sides * 100).round(1)
+        # every side carries some tier, so a "verified out of total" count
+        # always reads 100 percent and says nothing about confidence. What
+        # matters is which tier, so report the mix instead.
+        TIER_RANK = {"vision-verified": "read off the page",
+                     "vision": "read off the page",
+                     "manual-recovery": "read off the page",
+                     "totals-chain": "closes against printed totals",
+                     "arithmetic": "internal arithmetic only",
+                     "unverified": "not yet adjudicated"}
+        tdf["strength"] = tdf.tier.map(TIER_RANK).fillna("other")
+        STR_ORDER = ["read off the page", "closes against printed totals",
+                     "internal arithmetic only", "not yet adjudicated"]
+        by_strength = (tdf.groupby("strength")["values"].sum()
+                       .reindex(STR_ORDER).dropna())
+        c1, c2 = st.columns([3, 2])
         with c1:
-            st.dataframe(tdf, hide_index=True, width="stretch")
+            bs = by_strength.rename_axis("strength").reset_index(name="sides")
+            bs["share"] = (bs.sides / total_sides * 100).round(1)
+            ch_t = (alt.Chart(bs)
+                    .mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
+                    .encode(
+                        y=alt.Y("strength:N", sort=STR_ORDER, title=None),
+                        x=alt.X("sides:Q", title="Published numeric sides"),
+                        color=alt.Color("strength:N", sort=STR_ORDER,
+                                        legend=None,
+                                        scale=alt.Scale(
+                                            domain=STR_ORDER,
+                                            range=[STATUS["good"], SERIES[0],
+                                                   STATUS["warning"],
+                                                   STATUS["critical"]])),
+                        tooltip=[alt.Tooltip("strength:N", title="Evidence"),
+                                 alt.Tooltip("sides:Q", title="Sides"),
+                                 alt.Tooltip("share:Q", format=".1f",
+                                             title="Share of published")])
+                    .properties(height=170))
+            st.altair_chart(themed(ch_t), width="stretch")
         with c2:
-            verified = tdf[tdf.tier != "unverified"]["values"].sum()
-            st.metric("Independently verified numeric sides",
-                      f"{verified:,} of {tdf['values'].sum():,}",
-                      help="Target is 99.5 percent measured accuracy over "
-                           "everything published; see accuracy_report.json "
-                           "after certification")
+            direct = int(by_strength.get("read off the page", 0)
+                         + by_strength.get("closes against printed totals", 0))
+            st.metric("Checked against the source",
+                      f"{direct / total_sides * 100:.0f} percent",
+                      help=f"{direct:,} of {total_sides:,} published sides "
+                           f"were either read off the rendered page or close "
+                           f"against a printed total. The rest rely on "
+                           f"internal arithmetic, which catches a mistyped "
+                           f"digit but not a value copied from the wrong "
+                           f"column")
+            st.caption("Arithmetic alone is the weakest tier. It confirms "
+                       "Physical times Unit Cost equals Financial, which a "
+                       "whole row lifted from the wrong column can still "
+                       "satisfy.")
+        with st.expander("Tier detail"):
+            st.dataframe(tdf[["tier", "values", "share", "strength"]],
+                         hide_index=True, width="stretch")
     try:
         import json as _json
         rep = _json.load(open("accuracy_report.json", encoding="utf-8"))
+        stamp = _dt.date.fromtimestamp(
+            _os.path.getmtime("accuracy_report.json")).strftime("%d %B %Y")
         st.markdown("**Certified accuracy (stratified sample, Wilson 95 "
                     "percent lower bounds)**")
+        st.caption(
+            f"Measured on a sample drawn {stamp}. Two systematic sweeps and "
+            "the 2026-27 rebuild landed after that date, so these bounds "
+            "describe the workbook as it stood then, not as it is published "
+            "today. Every error the sample turned up was corrected here, so "
+            "they read low rather than high. A fresh round has not yet run.")
         st.dataframe(pd.DataFrame(rep), hide_index=True, width="content")
     except Exception:
         st.caption("Certification measurement not yet run.")
