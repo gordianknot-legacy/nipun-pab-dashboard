@@ -204,6 +204,15 @@ Other habits that earned their keep:
   is 20,714.47.
 - **Verify `row_uid` numbering before writing OVERS.** Dump the state's
   rows first; uids are not contiguous and not in visual order.
+- **Never scope a state from a truncated dump.** Uttarakhand 2022-23 was
+  planned from a listing cut off by `head`, so rows #5-#9 were invisible.
+  TRM, both PMU rows and the PMU total already existed; adding them again
+  produced duplicates and the check caught it at 2618.677 against a printed
+  2208.54. Dump one state at a time, or write to a file and read it whole.
+- **A wrong ADD does not disappear when you stop declaring it.** The apply
+  script is idempotent for *re-running the same modules*, not for
+  retracting them. Stray rows must be listed in `DROPS` explicitly, and
+  saying why in a comment keeps the module honest about its own history.
 
 ---
 
