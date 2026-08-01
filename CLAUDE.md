@@ -68,10 +68,15 @@ Do not assume `86.x` / `87.x`. Observed:
 | Layout | FLN block | PMU block | Seen in |
 |---|---|---|---|
 | Standard | `86.0.x` | `87.0.x` | most states |
+| Short form | `86.1`, `86.2`, `86.4` | `87.1`, `87.2` | Meghalaya and Sikkim 2022-23 |
 | Prabandh | `5.9.x`, `5.8.x`, `4.6.x` … | inside the FS subtotal | 2025-26, 2026-27 |
 | Tripura 2023-24 | **`32.x`** | **`34.x`** | one file |
 | Sl.No. layouts | running numbers (62-66, 86) | same sequence | Punjab, DN&DD |
 | 2026-27 FS | no codes at all | folded into FS subtotal | vision-rebuilt states |
+
+Assume nothing about numbering; read it off the page each time. What
+matters downstream is only whether a `87.x`-style PMU marker exists, so
+assign one when staging a layout that lacks it.
 
 Consequences:
 
@@ -178,7 +183,16 @@ Other habits that earned their keep:
 
 - **Read the page even when arithmetic pins the answer.** Punjab 2023-24's
   gap was exactly 230.00 on both sides and the district count × rate
-  reproduced it — the page still had to confirm it.
+  reproduced it. Delhi 2022-23's residual pinned a row at proposed 53.151
+  and approved 10.631 and the page printed 53.15 / 10.63. Both were right;
+  Nagaland 2023-24's plausible-looking 15.410 and 308.200 were wrong in the
+  last digit. The residual tells you *where* to look, never *what* to
+  write.
+- **When a row appears twice, ask the document.** Its own sub-total settles
+  it: if the line really appeared twice the subtotal would be double. That
+  resolved Uttarakhand 2023-24 (221, not 442) and Nagaland 2022-23. Where
+  one copy carries a code and the other does not, the coded one is
+  generally the real capture.
 - **Sanity-check large recoveries against another year.** Maharashtra
   2023-24 jumping to 20,085.86 was believable because its 2026-27 figure
   is 20,714.47.
@@ -234,6 +248,24 @@ let the arithmetic test discard them:
 `vision-verified` on a side means "hand-read off the page and reconciled
 against a printed total" and overrides the arithmetic gate. Use it only
 when both halves of that are true.
+
+### A moving unit cost is usually the PAB, not an error
+Approved and proposed unit costs differing on the same row looks wrong and
+almost never is. Read the remark before touching it:
+
+- *Bihar 2022-23 TLM*: physical unchanged at 10,952,303 students, unit cost
+  cut from 0.005 to 0.003. The PAB cut the **rate** (Rs 500 to Rs 300),
+  not the coverage.
+- *Gujarat 2022-23 TLM*: approved unit cost (0.00382) **exceeds** proposed
+  (0.00300), because a second scheme is blended into the same line — Rs 300
+  per student plus Rs 2,647.77 lakh at Rs 200 per student for Grades 4-5
+  under Sabal Shala.
+
+### Totals can round against their own components
+Not only can a subtotal round the rows beneath it, a grand total can round
+its own subtotals. *Meghalaya 2022-23*: 2122.08 + 230 = 2352.08 but the
+page prints **2352.09**, and the same 0.01 on the approved side. Record as
+printed and say so in the docstring, or someone will "fix" it later.
 
 ---
 
