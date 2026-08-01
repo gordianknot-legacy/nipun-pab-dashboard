@@ -189,7 +189,12 @@ _ACT_ALL = BUDGET[BUDGET.row_type == "activity"]
 # "annexure" belongs in the same fallback: Ladakh 2022-23 publishes its
 # budget block in a separate annexure volume while its minutes carry only
 # narrative. Leaving it out dropped that UT from national totals entirely.
-_COMPANION = ["addendum", "addendum (alt)", "annexure"]
+# "supplementary"/"supplementary (alt)" are the same pattern under a
+# different label (e.g. Delhi's 2025-26 supplementary volume) -- added
+# proactively during the 2023-26 cleanup pass, since no state-year
+# happened to depend solely on one yet, but the next one might.
+_COMPANION = ["addendum", "addendum (alt)", "annexure",
+              "supplementary", "supplementary (alt)"]
 _minutes_pairs = set(map(tuple,
     _ACT_ALL.loc[_ACT_ALL.doc_type == "minutes", ["state", "year"]].values))
 _is_primary = (_ACT_ALL.doc_type == "minutes") | (

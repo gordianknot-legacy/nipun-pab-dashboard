@@ -598,7 +598,82 @@ only one, because the apply script's auto-registration loop reads
 
 ---
 
-## 12. Commit conventions
+## 12. Closing out the last unverified documents (2023-24 through 2026-27)
+
+After 2021-22 and 2022-23 were fully closed, 15 documents remained across
+later years in the same `ok-ocr-fallback`/`layout-variant` limbo. Closing
+them surfaced a few lessons specific to the newer Prabandh portal format
+and to distinguishing "needs more reading" from "needs a different file."
+
+### Before trusting a correction request, check what the data actually says
+When told these documents were "already verified, just not updated,"
+the right first move was checking `p_verified`/`a_verified` on their
+rows: every one read `arithmetic`, never `vision` or `vision-verified`,
+and every printed total was still a garbled string with no captured
+value. Those two fields are written at extraction time and are strong,
+checkable evidence — a real disagreement about verification status
+should be resolved by reading them, not by re-reading pages on faith
+that they must have been missed.
+
+### Not every companion doc affects a published total
+Before spending effort on a flagged document, check whether its
+state-year already has a `minutes` doc with rows. If it does, the
+flagged file (addendum/supplementary) is excluded from `ACT_MIN`
+regardless of its own status — cleaning it corrects the Log for
+documentation purposes only. Of 2025-26's 12 flagged documents, only
+6 (Assam's addendum, and the 5 states whose primary *is* the flagged
+file) actually moved a published number; the other 6 were companion
+docs whose state already reconciled elsewhere. Worth knowing before
+deciding how much rigor a given file needs.
+
+### The 2025-26/2026-27 Prabandh schema has THREE proposal columns, not two
+Punjab, Assam and Tamil Nadu 2025-26 print "State Proposal (Initial)" /
+"State Proposal (Modified)" / "Recommended by DoSEL" side by side. The
+rule that closes every printed total in this batch: **proposed = the
+state's final ask, i.e. Modified where given, else Initial.** Several
+line items have a genuinely blank Initial cell (not zero — the item was
+an "Additional State Proposal" made only at the Modified stage); read
+the legend colour key at the top of the table, it names this case
+explicitly. Verify the reconciliation both ways before picking one — a
+document that closes under "always use Initial" (values identical
+throughout, e.g. Jharkhand, Delhi) doesn't tell you which convention is
+right; only a document with genuinely different Initial/Modified values
+(Tamil Nadu, Manipur) does.
+
+### A "0 characters, 0 hits" file may still be readable — sweep pages, don't grep the metadata
+Two 2025-26 documents (Maharashtra-adjacent pattern from §11, recurring
+here as Jharkhand and Tamil Nadu 2025-26, plus Assam's addendum) are pure
+scans that a keyword `find_pages_ocr.py` sweep returned nothing for —
+not because the anchor text isn't there, but because low-DPI OCR noise
+missed it on a first pass, or the annexure sits far from where a
+capture-window heuristic would look. Where the extractor's own garbled
+capture already names a page number (even with corrupted values), start
+there directly at full render DPI before re-running a blind sweep.
+
+### A source PDF can omit the annexure it says it contains
+Goa 2025-26's minutes explicitly states "the... item-wise costing sheet
+for 2025-26 is at Annexure III," and the PDF as downloaded contains only
+Annexure I/II (a prior-year spillover statement). No amount of higher-DPI
+rendering recovers a page that was never included in the file. This is
+the same "genuinely cannot be read" category as §1's small-in-the-
+original images, just for a different reason — verify by reading the
+minutes' own cross-references, not just its final page count, before
+concluding a table must be somewhere in what you have.
+
+### Extending the `_COMPANION` doc_type fallback list preventatively
+`supplementary` / `supplementary (alt)` (47 rows total) were never added
+to `dashboard.py`'s `_COMPANION` list alongside `addendum`/`annexure`,
+even though they follow the identical pattern (Delhi 2025-26 has both a
+`minutes` and a `supplementary` file). No state-year currently depends on
+`supplementary` alone, so this wasn't yet live like the Ladakh bug — but
+rather than wait for it to bite, it was added now. Re-run
+`BUDGET.doc_type.value_counts()` against the fallback list at the start
+of every new pass; a doc_type introduced by a newly-downloaded year is
+easy to miss until a state silently vanishes from the totals.
+
+---
+
+## 13. Commit conventions
 
 No AI attribution or co-author trailers in commits or PR bodies. Commit
 messages explain *why* a value changed and cite the printed figures.
