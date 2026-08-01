@@ -160,6 +160,24 @@ def load(mtime=None):
 
 import datetime as _dt
 import os as _os
+
+# Documents whose current portal upload is a 72 DPI re-encode that cannot be
+# read. These are parsed from an archived copy of the original instead, so
+# the "open the source" link must not imply the portal file is what we used.
+# Listed explicitly rather than read from disk: the replaced originals live
+# in pdfs/lowres_2025_reupload/, which is not part of the deployed app.
+RECOVERED_SOURCES = {
+    "Assam_2023-24_minutes.pdf",
+    "Chhattisgarh_2022-23_minutes.pdf",
+    "Himachal-Pradesh_2022-23_minutes.pdf",
+    "Manipur_2023-24_minutes.pdf",
+    "Meghalaya_2023-24_minutes.pdf",
+    "Mizoram_2022-23_minutes.pdf",
+    "Mizoram_2023-24_minutes.pdf",
+    "Nagaland_2022-23_minutes.pdf",
+    "Tripura_2023-24_minutes.pdf",
+    "West-Bengal_2023-24_minutes.pdf",
+}
 BUDGET, NARRATIVE, LOG = load(_os.path.getmtime(WB))
 _ACT_ALL = BUDGET[BUDGET.row_type == "activity"]
 # A handful of state-years (e.g. Kerala/Tamil Nadu/Goa/Assam 2025-26) have no
@@ -227,8 +245,11 @@ with st.sidebar:
                 "against its printed total · ◐ parsed via OCR (verify before "
                 "quoting) · ◔ partial · ✗ unparsed scan")
     st.divider()
-    st.caption("Built from NIPUN_Bharat_PAB_master.xlsx · "
-               "re-run `python parallel_extract.py` after new downloads")
+    st.caption(f"Built from NIPUN_Bharat_PAB_master.xlsx, last updated "
+               f"{_dt.date.fromtimestamp(_os.path.getmtime(WB)):%d %B %Y}. "
+               f"{len(RECOVERED_SOURCES)} documents are read from archived "
+               f"copies of their original uploads, because the files now on "
+               f"the portal were re-uploaded at an unreadable resolution.")
 
 tab_over, tab_state, tab_comp, tab_cov, tab_ana = st.tabs(
     ["🇮🇳 National Picture", "🏛️ State Explorer", "📊 Compare States",
@@ -398,7 +419,16 @@ with tab_state:
         st.markdown(f"##### {doc.doc_label.iloc[0]} · {q}"
                     + (f" · {chk}" if chk else ""))
         url = lg.get("source_url")
-        if pd.notna(url) and url:
+        if src in RECOVERED_SOURCES:
+            note = ("read from an archived copy of the original upload, "
+                    "because the file now on the portal was re-uploaded at "
+                    "a resolution too low to read")
+            if pd.notna(url) and url:
+                st.caption(f"{src} · {note} · "
+                           f"[current portal file]({url})")
+            else:
+                st.caption(f"{src} · {note}")
+        elif pd.notna(url) and url:
             st.caption(f"{src} · [open source PDF on the ministry portal]"
                        f"({url})")
         else:
@@ -695,9 +725,12 @@ with tab_cov:
     st.caption("Every published number carries how it was confirmed. "
                "Arithmetic means Physical times Unit Cost reproduces the "
                "printed Financial. Totals chain means the value closes "
-               "against printed totals. Dual OCR means two independent OCR "
-               "passes agree. Vision means adjudicated against the page "
-               "image. Unverified values are queued for adjudication.")
+               "against printed totals. Vision means the figure was read "
+               "off the rendered page, and vision-verified means it was "
+               "also reconciled against a printed total. Manual recovery "
+               "covers the handful rebuilt from a companion document. "
+               "Unverified means no independent check has been recorded "
+               "for that side.")
     tiers = pd.concat([
         ACT_MIN.loc[ACT_MIN.proposed_financial_lakh.notna(), "p_verified"],
         ACT_MIN.loc[ACT_MIN.approved_financial_lakh.notna(), "a_verified"],
@@ -768,11 +801,13 @@ with tab_cov:
         st.markdown("**Certified accuracy (stratified sample, Wilson 95 "
                     "percent lower bounds)**")
         st.caption(
-            f"Measured on a sample drawn {stamp}. Two systematic sweeps and "
-            "the 2026-27 rebuild landed after that date, so these bounds "
-            "describe the workbook as it stood then, not as it is published "
-            "today. Every error the sample turned up was corrected here, so "
-            "they read low rather than high. A fresh round has not yet run.")
+            f"Measured on a sample drawn {stamp}. Two systematic sweeps, the "
+            "2026-27 rebuild and the 2023-24 and 2022-23 cleaning passes all "
+            "landed after that date, so these bounds describe the workbook as "
+            "it stood then, not as it is published today. Every error the "
+            "sample turned up was corrected here, and the passes since have "
+            "corrected many more, so they read low rather than high. A fresh "
+            "round has not yet run.")
         st.dataframe(pd.DataFrame(rep), hide_index=True, width="content")
     except Exception:
         st.caption("Certification measurement not yet run.")
