@@ -192,7 +192,13 @@ Other habits that earned their keep:
   it: if the line really appeared twice the subtotal would be double. That
   resolved Uttarakhand 2023-24 (221, not 442) and Nagaland 2022-23. Where
   one copy carries a code and the other does not, the coded one is
-  generally the real capture.
+  generally the real capture; where one lacks an approved side, that one is
+  the fragment (Chhattisgarh 2022-23, Mizoram 2023-24).
+- **Garbled total rows often still carry their digits.** Chhattisgarh
+  2022-23's junk grand-total row read `0549.21 … 97557`, which is the
+  printed 10549.21 and 9755.7 with a leading digit and a decimal point
+  lost. Useful as corroboration once the page is read; never as the source
+  of the value.
 - **Sanity-check large recoveries against another year.** Maharashtra
   2023-24 jumping to 20,085.86 was believable because its 2026-27 figure
   is 20,714.47.
