@@ -1,4 +1,7 @@
-﻿streamlit
+# streamlit is pinned to a major version because the app's CSS targets
+# [data-testid] and React Aria class hooks, which are not a supported API.
+# A major bump can rename them and silently unstyle the page.
+streamlit>=1.60,<2
 pandas
 altair
 openpyxl

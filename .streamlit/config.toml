@@ -1,0 +1,27 @@
+# Theme for the NIPUN Bharat PAB dashboard.
+#
+# Cool neutral canvas, not a warm cream one. The brand navy and yellow are
+# the only saturated things on the page and a warm ground fights both.
+# primaryColor must be set or Streamlit paints selected tabs and multiselect
+# chips in its default red.
+#
+# Typography is set here only for the parts CSS cannot reach, chiefly the
+# canvas-rendered data grid. Everything else is driven by inject_css() in
+# dashboard.py, which also loads the three faces from Google Fonts. Keep the
+# family names here identical to the ones imported there.
+#
+# NOTE: check_stale_content.py compares dashboard.py and the workbook between
+# PAB/ and deploy_dashboard/, but NOT this file. Keep the two copies of
+# .streamlit/config.toml in sync by hand.
+
+[theme]
+base = "light"
+primaryColor = "#00316b"
+backgroundColor = "#fafafa"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#0a0a0a"
+font = "Inter Tight, Inter, system-ui, sans-serif"
+headingFont = "Instrument Serif, Georgia, serif"
+codeFont = "JetBrains Mono, ui-monospace, monospace"
+baseRadius = "4px"
+borderColor = "#e4e4e7"

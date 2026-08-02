@@ -1,0 +1,955 @@
+<title>Two Rupees a Day. Inside the NIPUN Bharat Budget</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #faf9f5;
+    --card: #fffefb;
+    --ink: #1c1b18;
+    --ink-2: #55534c;
+    --muted: #8a877e;
+    --hairline: #e3e1d8;
+    --baseline: #c6c4b9;
+    --slate: #00316b;
+    --slate-deep: #001b3d;
+    --chalk: #f2efe4;
+    --chalk-dim: #b8cfc2;
+    --s1: #00316b; --s2: #ffd400; --s3: #3987e5; --s4: #eda100;
+    --s5: #e87ba4; --s6: #008300; --s7: #8a877e;
+    --seq0: #d6e4f5; --seq1: #a8c5ea; --seq2: #6fa0dd;
+    --seq3: #3d7acb; --seq4: #1a4f9e; --seq5: #00316b;
+    --seqtx0: #1c1b18; --seqtx1: #1c1b18; --seqtx2: #1c1b18;
+    --seqtx3: #ffffff; --seqtx4: #ffffff; --seqtx5: #ffffff;
+    --dumb-lite: #a8c5ea;
+    --wash: rgba(0,49,107,0.10);
+    --tip-bg: #22211d;
+    --tip-ink: #f5f4ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --paper: #161814;
+      --card: #1d201b;
+      --ink: #edece4;
+      --ink-2: #b8b6aa;
+      --muted: #8a877e;
+      --hairline: #2c2f29;
+      --baseline: #3a3d36;
+      --slate: #001b3d;
+      --slate-deep: #000b1a;
+      --chalk: #eae7da;
+      --chalk-dim: #7d9a8c;
+      --s1: #3987e5; --s2: #ffd400; --s3: #6ba6f0; --s4: #eda100;
+      --s5: #d55181; --s6: #008300; --s7: #8a877e;
+      --seq0: #14202e; --seq1: #1c4a7e; --seq2: #2a6ab8;
+      --seq3: #3987e5; --seq4: #7db0ef; --seq5: #cfe1fa;
+      --seqtx0: #edece4; --seqtx1: #ffffff; --seqtx2: #ffffff;
+      --seqtx3: #ffffff; --seqtx4: #1c1b18; --seqtx5: #1c1b18;
+      --dumb-lite: #5a83b8;
+      --wash: rgba(57,135,229,0.14);
+      --tip-bg: #f5f4ee;
+      --tip-ink: #22211d;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #161814;
+    --card: #1d201b;
+    --ink: #edece4;
+    --ink-2: #b8b6aa;
+    --muted: #8a877e;
+    --hairline: #2c2f29;
+    --baseline: #3a3d36;
+    --slate: #001b3d;
+    --slate-deep: #000b1a;
+    --chalk: #eae7da;
+    --chalk-dim: #7d9a8c;
+    --s1: #3987e5; --s2: #ffd400; --s3: #6ba6f0; --s4: #eda100;
+    --s5: #d55181; --s6: #008300; --s7: #8a877e;
+    --seq0: #14202e; --seq1: #1c4a7e; --seq2: #2a6ab8;
+    --seq3: #3987e5; --seq4: #7db0ef; --seq5: #cfe1fa;
+    --seqtx0: #edece4; --seqtx1: #ffffff; --seqtx2: #ffffff;
+    --seqtx3: #ffffff; --seqtx4: #1c1b18; --seqtx5: #1c1b18;
+    --dumb-lite: #5a83b8;
+    --wash: rgba(57,135,229,0.14);
+    --tip-bg: #f5f4ee;
+    --tip-ink: #22211d;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+    font-size: 18px;
+    line-height: 1.65;
+  }
+  .sans, .fig, svg text, .legend, .tile-ab, .axis, .toggle, .chip {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  h1, h2, h3 { text-wrap: balance; line-height: 1.15; margin: 0 0 0.5em; }
+  h2 { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; }
+  h3 { font-size: 1.15rem; }
+  p { margin: 0 0 1.1em; }
+  a { color: var(--s1); }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 0 20px; }
+  .wide { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+  section.block { padding: 5rem 0 3.5rem; }
+  .eyebrow {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-2); margin-bottom: 1rem;
+  }
+  .eyebrow::before {
+    content: ""; display: inline-block; width: 26px; height: 3px;
+    background: var(--slate); margin-right: 10px; vertical-align: middle;
+    border-radius: 2px;
+  }
+  :root[data-theme="dark"] .eyebrow::before { background: var(--chalk-dim); }
+  .note { font-size: 0.88rem; color: var(--ink-2); }
+  .kicker { font-size: 1.22rem; color: var(--ink-2); }
+
+  /* ---------- hero division scroller ---------- */
+  .hero {
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(255,255,255,0.06), transparent 60%),
+      linear-gradient(170deg, var(--slate) 0%, var(--slate-deep) 100%);
+    color: var(--chalk);
+  }
+  .hero-head { padding: 4.5rem 20px 1rem; max-width: 720px; margin: 0 auto; }
+  .hero-head .eyebrow { color: var(--chalk-dim); }
+  .hero-head .eyebrow::before { background: var(--chalk-dim); }
+  .hero-head h1 {
+    font-size: clamp(2.3rem, 6vw, 3.6rem); font-weight: 700; color: var(--chalk);
+  }
+  .hero-head p { color: var(--chalk-dim); max-width: 34em; font-size: 1.1rem; }
+  .scroller { position: relative; }
+  .sticky-fig {
+    position: sticky; top: 0; height: 58vh; min-height: 340px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; pointer-events: none;
+  }
+  .fig-rule {
+    width: 130px; height: 0; border-top: 2px solid var(--chalk-dim);
+    opacity: 0.5; margin: 0.9rem 0;
+  }
+  #heroNum {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 650; font-size: clamp(3.2rem, 11vw, 6.8rem);
+    letter-spacing: -0.02em; line-height: 1; color: #ffffff;
+  }
+  #heroUnit {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: clamp(0.95rem, 2.4vw, 1.25rem); color: var(--chalk-dim);
+    margin-top: 0.8rem; min-height: 1.4em;
+  }
+  .steps { position: relative; z-index: 2; padding-bottom: 20vh; }
+  .step {
+    max-width: 30em; margin: 0 auto 55vh; padding: 1.1rem 1.4rem;
+    background: rgba(6, 16, 32, 0.55);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    border: 1px solid rgba(242,239,228,0.14); border-radius: 10px;
+    color: var(--chalk); font-size: 1.08rem;
+  }
+  .step:first-child { margin-top: 4vh; }
+  .step:last-child { margin-bottom: 30vh; }
+  .step strong { color: #fff; font-weight: 700; }
+  .chai { display: flex; gap: 14px; align-items: center; }
+  .chai svg { flex: 0 0 auto; }
+
+  /* ---------- charts ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--hairline);
+    border-radius: 12px; padding: 1.4rem 1.4rem 1rem; margin: 1.6rem 0;
+  }
+  .card h3 { font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.98rem; font-weight: 650; margin-bottom: 0.15rem; }
+  .card .sub { font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.8rem; color: var(--ink-2); margin-bottom: 0.9rem; }
+  svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+  svg text { font-size: 12px; fill: var(--ink-2); }
+  svg .axis text { fill: var(--muted); font-variant-numeric: tabular-nums; }
+  svg .grid { stroke: var(--hairline); stroke-width: 1; }
+  svg .base { stroke: var(--baseline); stroke-width: 1; }
+  svg .dlab { fill: var(--ink); font-weight: 600; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.78rem;
+    color: var(--ink-2); margin: 0.6rem 0 0.2rem;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i {
+    width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+  }
+  details.tbl { margin: 0.6rem 0 0.2rem; font-size: 0.85rem; }
+  details.tbl summary {
+    cursor: pointer; color: var(--ink-2);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.8rem;
+  }
+  details.tbl summary:focus-visible,
+  .toggle button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--s1); outline-offset: 2px;
+  }
+  details.tbl table {
+    border-collapse: collapse; width: 100%; margin-top: 0.6rem;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.8rem;
+  }
+  details.tbl th, details.tbl td {
+    text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--hairline);
+    font-variant-numeric: tabular-nums;
+  }
+  details.tbl th:first-child, details.tbl td:first-child { text-align: left; }
+  details.tbl th { color: var(--ink-2); font-weight: 600; }
+  .tablewrap { overflow-x: auto; }
+
+  #tip {
+    position: fixed; z-index: 30; pointer-events: none; display: none;
+    background: var(--tip-bg); color: var(--tip-ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.78rem; line-height: 1.45; padding: 7px 10px;
+    border-radius: 7px; max-width: 240px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  #tip b { font-weight: 650; }
+
+  /* isotype */
+  .dots { display: flex; flex-wrap: wrap; gap: 5px; margin: 0.6rem 0 0.4rem; }
+  .dots i {
+    width: 11px; height: 11px; border-radius: 50%; background: var(--s1);
+    opacity: 0; transform: scale(0.4); transition: opacity 0.3s, transform 0.3s;
+  }
+  .dots.teach i { background: var(--s3); }
+  .dots.on i { opacity: 1; transform: scale(1); }
+  @media (prefers-reduced-motion: reduce) {
+    .dots i { transition: none; opacity: 1; transform: none; }
+    .step { margin-bottom: 18vh; }
+  }
+
+  /* rupee morph */
+  .rupee-sticky { position: sticky; top: 8vh; z-index: 1; }
+  .rsteps .step2 {
+    max-width: 32em; margin: 0 auto 46vh; padding: 1rem 1.3rem;
+    background: var(--card); border: 1px solid var(--hairline);
+    border-radius: 10px; font-size: 1.02rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .rsteps .step2:last-child { margin-bottom: 8vh; }
+  @media (prefers-reduced-motion: reduce) { .rsteps .step2 { margin-bottom: 14vh; } }
+  .rbar { display: flex; height: 46px; border-radius: 8px; overflow: hidden;
+    background: var(--hairline); gap: 2px; }
+  .rbar div { transition: flex-grow 0.6s ease; min-width: 0; }
+  @media (prefers-reduced-motion: reduce) { .rbar div { transition: none; } }
+  .rbar-year {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 650; font-size: 1rem; margin-bottom: 0.5rem;
+  }
+  .rlabels { display: flex; justify-content: space-between;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.78rem; color: var(--ink-2); margin-top: 6px; }
+
+  /* rate card */
+  .receipt {
+    background: var(--card); border: 1px solid var(--hairline); border-radius: 4px;
+    max-width: 430px; margin: 1.6rem auto; padding: 1.6rem 1.7rem;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.06);
+    position: relative;
+  }
+  .receipt::before, .receipt::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 8px;
+    background: linear-gradient(-45deg, var(--paper) 5px, transparent 0) 0 0 / 12px 100%,
+                linear-gradient(45deg, var(--paper) 5px, transparent 0) 6px 0 / 12px 100%;
+  }
+  .receipt::before { top: -1px; }
+  .receipt::after { bottom: -1px; transform: scaleY(-1); }
+  .receipt h3 { text-align: center; letter-spacing: 0.12em; font-size: 0.82rem;
+    text-transform: uppercase; margin: 0.4rem 0 0.2rem; }
+  .receipt .rsub { text-align: center; font-size: 0.72rem; color: var(--muted);
+    margin-bottom: 1.1rem; }
+  .ritem { display: flex; align-items: baseline; gap: 8px;
+    font-size: 0.86rem; margin: 0.55rem 0; }
+  .ritem .lead { flex: 1; border-bottom: 2px dotted var(--hairline); }
+  .ritem .amt { font-weight: 650; font-variant-numeric: tabular-nums; }
+  .ritem .per { display: block; font-size: 0.7rem; color: var(--muted); }
+  .receipt .total { border-top: 1.5px solid var(--ink); margin-top: 1rem;
+    padding-top: 0.7rem; }
+
+  /* tile map */
+  .toggle { display: flex; gap: 8px; margin: 0.2rem 0 1rem; }
+  .toggle button {
+    font-size: 0.78rem; font-weight: 600; padding: 6px 12px; cursor: pointer;
+    border: 1px solid var(--hairline); background: var(--card);
+    color: var(--ink-2); border-radius: 999px;
+  }
+  .toggle button[aria-pressed="true"] {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+  .tile-ab { font-weight: 650; font-size: 12px; pointer-events: none; }
+  .tile-val { font-size: 9.5px; pointer-events: none; opacity: 0.85; }
+  .map-legend { display: flex; align-items: center; gap: 2px; margin-top: 0.8rem;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 0.7rem; color: var(--ink-2); flex-wrap: wrap; }
+  .map-legend i { width: 34px; height: 12px; display: inline-block; }
+  .map-legend em { font-style: normal; margin: 0 8px 0 4px; }
+
+  .foot {
+    border-top: 1px solid var(--hairline); margin-top: 4rem;
+    padding: 3rem 0 4rem; font-size: 0.92rem; color: var(--ink-2);
+  }
+  .foot h2 { font-size: 1.25rem; color: var(--ink); }
+  .foot ul { padding-left: 1.2em; }
+  .foot li { margin-bottom: 0.55em; }
+</style>
+
+<div id="tip" role="presentation"></div>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-head">
+    <div class="eyebrow">A budget story from the PAB minutes</div>
+    <h1>Two rupees a day</h1>
+    <p>What it costs to teach five crore children to read. Every figure on
+    this page is read directly from the Government of India's Project
+    Approval Board minutes for the NIPUN Bharat mission.</p>
+    <p class="sans" style="font-size:0.8rem; opacity:0.75;">Scroll to divide the number down &#8595;</p>
+  </div>
+  <div class="scroller">
+    <div class="sticky-fig" aria-hidden="true">
+      <div id="heroNum">&#8377;4,195.73&nbsp;Cr</div>
+      <div class="fig-rule"></div>
+      <div id="heroUnit">approved for 2026-27</div>
+    </div>
+    <div class="steps" id="heroSteps">
+      <div class="step" data-num="4195.73" data-fmt="cr" data-unit="approved for 2026-27">
+        For the 2026-27 school year, the Project Approval Board approved
+        <strong>&#8377;4,195.73 crore</strong> for NIPUN Bharat, India's
+        national mission for foundational literacy and numeracy. A number
+        that big is hard to feel. So divide it.
+      </div>
+      <div class="step" data-num="116.55" data-fmt="cr" data-unit="per state or UT, on average">
+        Spread it across the <strong>36 states and union territories</strong>
+        whose plans the Board approved and it is about &#8377;116.5 crore
+        each. Still abstract.
+      </div>
+      <div class="step" data-num="803.59" data-fmt="rs" data-unit="per child, for the whole year">
+        Divide by the <strong>5.2 crore children</strong> the approved
+        activities reach and the mission budget becomes
+        <strong>&#8377;804 per child</strong> for the entire year.
+      </div>
+      <div class="step" data-num="2.20" data-fmt="rs2" data-unit="per child, per day">
+        Divide by 365 days and you arrive at the real scale of this
+        mission. <strong>&#8377;2.20 per child per day</strong> to teach
+        a generation to read, write and count.
+      </div>
+      <div class="step chai" data-num="2.20" data-fmt="rs2" data-unit="per child, per day">
+        <svg width="46" height="52" viewBox="0 0 46 52" aria-hidden="true">
+          <path d="M8 18 h26 a4 4 0 0 1 4 4 v2 a8 8 0 0 1 -8 8 h-1" fill="none" stroke="var(--chalk-dim)" stroke-width="2.5"/>
+          <path d="M8 18 h24 v14 a10 10 0 0 1 -10 10 h-4 a10 10 0 0 1 -10 -10 z" fill="none" stroke="var(--chalk)" stroke-width="2.5"/>
+          <path d="M14 12 c0 -3 3 -3 3 -6 M22 12 c0 -3 3 -3 3 -6" fill="none" stroke="var(--chalk-dim)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>A cup of roadside chai costs about &#8377;10. The mission's
+        daily budget for a child is <strong>less than a quarter of a
+        chai</strong>.</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= SCALE ================= -->
+<section class="block" id="scale">
+  <div class="wrap">
+    <div class="eyebrow">The scale</div>
+    <h2>Small rupees, enormous reach</h2>
+    <p>The daily figure is tiny because the denominator is vast. In 2026-27
+    the approved plans put teaching and learning materials in the hands of
+    <strong>5.2 crore children</strong> and equip
+    <strong>24.3 lakh teachers</strong> across every state and union
+    territory of India.</p>
+    <p>How big is that against the country as a whole? UDISE+, the
+    ministry's own school census, counted <strong id="udiseFound">&#8230;</strong>
+    children enrolled at the Foundational stage nationally in 2023-24, the
+    most recent year it has published. NIPUN's 2026-27 approvals reach
+    <strong id="udiseShare">&#8230;</strong> of that count, the closest
+    outside check this story can offer against an independent source.</p>
+  </div>
+  <div class="wide">
+    <div class="card">
+      <h3>5,20,01,731 children</h3>
+      <div class="sub">Each dot is 2.5 lakh children receiving learning materials under the 2026-27 approvals</div>
+      <div class="dots" id="dotsKids" aria-label="Dot grid showing 5.2 crore children"></div>
+      <h3 style="margin-top:1.2rem;">24,25,304 teachers</h3>
+      <div class="sub">Each dot is 2.5 lakh teachers covered by training and resource materials</div>
+      <div class="dots teach" id="dotsTeach" aria-label="Dot grid showing 24.3 lakh teachers"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE CLIMB ================= -->
+<section class="block" id="climb">
+  <div class="wrap">
+    <div class="eyebrow">Six approval cycles</div>
+    <h2>The budget doubled in six years</h2>
+    <p>From its launch year to 2026-27, the mission's target year, the
+    Board's approved outlay grew from &#8377;2,059 crore to
+    &#8377;4,196 crore. The jump after 2024-25 is not simply more of the
+    same money. From 2025-26 the approvals fold in large support for
+    pre-primary Balvatika classes, and the materials budget narrows its
+    focus to the youngest cohort, pre-primary to Grade 2.</p>
+  </div>
+  <div class="wide">
+    <div class="card">
+      <h3>Approved outlay by year</h3>
+      <div class="sub">&#8377; crore, all states and UTs, as approved in PAB minutes</div>
+      <svg class="chart" id="climbChart" viewBox="0 0 860 320" role="img"
+        aria-label="Column chart of approved outlay by year, rising from 2,059 crore rupees in 2021-22 to 4,196 crore in 2026-27"></svg>
+      <details class="tbl"><summary>View as table</summary>
+        <div class="tablewrap"><table id="climbTable"></table></div>
+      </details>
+    </div>
+    <div class="card">
+      <h3>What that means per child per day</h3>
+      <div class="sub">&#8377; per covered child per day, 365-day basis. The 2025-26 spike reflects the narrower pre-primary to Grade 2 cohort, not a spending surge</div>
+      <svg class="chart" id="rpdChart" viewBox="0 0 860 240" role="img"
+        aria-label="Line chart of rupees per child per day, from 0.91 in 2021-22 to 2.20 in 2026-27, with a spike to 2.99 in 2025-26"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHERE A RUPEE GOES ================= -->
+<section class="block" id="rupee" style="padding-bottom:1rem;">
+  <div class="wrap">
+    <div class="eyebrow">Follow the rupee</div>
+    <h2>Where each rupee goes</h2>
+    <p>Take one rupee of the approved budget and split it into its 100
+    paise. For most of the mission's life, roughly 80 paise of every rupee
+    went straight into children's hands as teaching and learning
+    materials. Watch the split shift as you scroll.</p>
+  </div>
+  <div class="wide">
+    <div class="rupee-sticky">
+      <div class="card" style="margin:0;">
+        <div class="rbar-year" id="rbarYear">2021-22</div>
+        <div class="rbar" id="rbar" role="img" aria-label="One rupee split into paise by spending category, changing by year"></div>
+        <div class="rlabels"><span>0 paise</span><span>100 paise</span></div>
+        <div class="legend" id="rlegend"></div>
+      </div>
+    </div>
+    <div class="rsteps" id="rupeeSteps">
+      <div class="step2" data-year="0">In <strong>2021-22</strong>, the launch
+        year, 80 paise of every rupee bought learning materials for six
+        crore children in Grades 1 to 5. Teacher training took 12 paise.</div>
+      <div class="step2" data-year="1">In <strong>2022-23</strong> materials
+        peaked at 88 paise in the rupee, the purest year of the
+        books-in-hands strategy.</div>
+      <div class="step2" data-year="2">Through <strong>2023-24</strong> and
+        <strong>2024-25</strong> the Board pushed more into teacher capacity
+        building and independent assessments of learning.</div>
+      <div class="step2" data-year="4">In <strong>2025-26</strong> the split
+        transformed. Nearly half of every rupee now supports pre-primary
+        Balvatika classes, and the materials budget concentrates on
+        pre-primary to Grade 2.</div>
+      <div class="step2" data-year="5">The <strong>2026-27</strong> plan holds
+        that shape. 48 paise for materials, 38 paise for pre-primary
+        support, 11 paise for teacher capacity. The mission's last approved
+        rupee is split between books, Balvatikas and teachers.</div>
+    </div>
+    <div class="card">
+      <h3>All six years side by side</h3>
+      <div class="sub">Share of approved outlay by category, each bar is 100 paise</div>
+      <div id="smallMult"></div>
+      <div class="legend" id="slegend"></div>
+      <details class="tbl"><summary>View as table</summary>
+        <div class="tablewrap"><table id="rupeeTable"></table></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RATE CARD ================= -->
+<section class="block" id="rates">
+  <div class="wrap">
+    <div class="eyebrow">The price list</div>
+    <h2>The mission has a rate card</h2>
+    <p>PAB approvals are built from per-unit rates, printed line by line in
+    the annexures. These are the standard 2026-27 rates most states were
+    approved at. They read like a receipt for a child's foundational
+    education.</p>
+  </div>
+  <div class="receipt" role="table" aria-label="Standard approved unit rates for 2026-27">
+    <h3>NIPUN Bharat &#183; approved rates</h3>
+    <div class="rsub">from the 2026-27 PAB annexures &#183; most common approved rate</div>
+    <div class="ritem"><span>Teaching learning materials<span class="per">per child, per year</span></span><span class="lead"></span><span class="amt">&#8377;500</span></div>
+    <div class="ritem"><span>Balvatika pre-primary materials<span class="per">per child, per year</span></span><span class="lead"></span><span class="amt">&#8377;500</span></div>
+    <div class="ritem"><span>Teacher resource handbook<span class="per">per teacher</span></span><span class="lead"></span><span class="amt">&#8377;150</span></div>
+    <div class="ritem"><span>Teacher capacity building<span class="per">per teacher, per year</span></span><span class="lead"></span><span class="amt">&#8377;1,500&#8211;2,500</span></div>
+    <div class="ritem"><span>District project unit<span class="per">per district, per year</span></span><span class="lead"></span><span class="amt">&#8377;5&nbsp;lakh</span></div>
+    <div class="ritem"><span>State project unit<span class="per">per state, per year</span></span><span class="lead"></span><span class="amt">&#8377;50&nbsp;lakh</span></div>
+    <div class="ritem total"><span><strong>A child's year of foundational learning</strong><span class="per">materials at the standard rate</span></span><span class="lead"></span><span class="amt">&#8377;500</span></div>
+  </div>
+  <div class="wrap">
+    <p class="note">Rates are the modal approved unit costs across state
+    annexures for 2026-27. Individual states vary. Several were approved at
+    &#8377;1,500 per teacher for training rather than &#8377;2,500.</p>
+  </div>
+</section>
+
+<!-- ================= STATE MAP ================= -->
+<section class="block" id="map">
+  <div class="wrap">
+    <div class="eyebrow">36 states, one mission</div>
+    <h2>Small states pay more per child</h2>
+    <p>The same mission costs very different amounts per child depending on
+    where the child lives. Uttar Pradesh reaches 1.3 crore children at
+    <strong>&#8377;1.82 a day</strong>. Ladakh, with 5,500 children spread
+    across high Himalayan valleys, spends <strong>&#8377;33.94 a day</strong>
+    per child. Fixed costs like project units and training infrastructure
+    do not shrink with enrolment.</p>
+  </div>
+  <div class="wide">
+    <div class="card">
+      <h3>2026-27 approvals by state</h3>
+      <div class="sub" id="mapSub">&#8377; per covered child per day, 365-day basis</div>
+      <div class="toggle" role="group" aria-label="Choose map measure">
+        <button id="btnRpd" aria-pressed="true">&#8377; per child per day</button>
+        <button id="btnCr" aria-pressed="false">Total &#8377; crore</button>
+      </div>
+      <svg class="chart" id="mapChart" viewBox="0 0 680 960" role="img"
+        aria-label="Tile grid map of India shaded by rupees per child per day"></svg>
+      <div class="map-legend" id="mapLegend"></div>
+      <details class="tbl"><summary>View as table</summary>
+        <div class="tablewrap"><table id="mapTable"></table></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASKED VS APPROVED ================= -->
+<section class="block" id="haircut">
+  <div class="wrap">
+    <div class="eyebrow">The negotiation</div>
+    <h2>What states asked for, and what they got</h2>
+    <p>A PAB approval is the end of a negotiation. Most 2026-27 proposals
+    came through nearly whole. West Bengal's did not. It asked for
+    &#8377;95.7 crore and was approved &#8377;63.5 crore, a cut of a third.</p>
+  </div>
+  <div class="wide">
+    <div class="card">
+      <h3>Proposed and approved outlay, 2026-27</h3>
+      <div class="sub">Twelve largest state plans by approved outlay, plus West Bengal, &#8377; crore</div>
+      <div class="legend">
+        <span><i style="background:var(--dumb-lite)"></i>Proposed</span>
+        <span><i style="background:var(--s1)"></i>Approved</span>
+      </div>
+      <svg class="chart" id="dumbChart" viewBox="0 0 860 520" role="img"
+        aria-label="Dumbbell chart comparing proposed and approved outlay for the twelve largest states"></svg>
+      <details class="tbl"><summary>View as table</summary>
+        <div class="tablewrap"><table id="dumbTable"></table></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHODOLOGY ================= -->
+<footer class="foot" id="method">
+  <div class="wrap">
+    <h2>How these numbers were made</h2>
+    <ul>
+      <li><strong>Source.</strong> Minutes of the Project Approval Board of
+      the Department of School Education and Literacy, Ministry of
+      Education, for annual plans 2021-22 through 2026-27. Figures are the
+      NIPUN Bharat activity lines of each state's approved annexure,
+      transcribed and reconciled against the totals printed in the
+      documents themselves. All 202 documents that print a NIPUN subtotal
+      reconcile against it.</li>
+      <li><strong>Children and teachers covered.</strong> Denominators come
+      from the approvals, not external enrolment data. Children covered is
+      the approved physical count on teaching learning material lines.
+      Teachers covered is the approved count on teacher training and
+      resource material lines. They mean children and teachers reached by
+      those activities, which is smaller than total enrolment.</li>
+      <li><strong>Per-day figures.</strong> Calendar-year basis, 365 days.
+      On a school-day basis of roughly 220 days, the 2026-27 headline
+      figure would be about &#8377;3.65 per child per day.</li>
+      <li><strong>The 2025-26 shift.</strong> From 2025-26 the approvals
+      fold pre-primary Balvatika support into the NIPUN block and the
+      materials line narrows to the pre-primary to Grade 2 cohort. Per
+      child figures before and after that year are not directly
+      comparable, which is why the spike in the trend chart is annotated
+      rather than smoothed.</li>
+      <li><strong>Coverage gaps.</strong> A few state-years print financial
+      approvals without physical counts. Per child figures for those
+      states are shown as not printed rather than estimated.</li>
+      <li><strong>The UDISE+ comparison.</strong> The Foundational-stage
+      enrolment figure in "The scale" section is drawn from the
+      Government of India's own UDISE+ 2023-24 report (Table 2.1, Ministry
+      of Education, Department of School Education &amp; Literacy), the
+      most recent year it has published. It is an independent enrolment
+      count, not the same denominator as "children covered" elsewhere on
+      this page, which stays approval-scope from the PAB minutes, and it
+      is a different year (2023-24) from the 2026-27 approvals it is
+      compared against.</li>
+      <li><strong>Explore the full data.</strong> Every activity line,
+      source page reference and verification status is browsable at
+      <a href="https://nipun-pab.streamlit.app">nipun-pab.streamlit.app</a>.</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+const DATA = {"cats":["Teaching Learning Materials","Pre-Primary / ECCE","Teacher Capacity Building","Assessments & Learning Study","PMU (State & District)","Teacher Resource / Handbook","Other / unidentified"],"national":[],"states":[]};
+</script>
+<script id="embed" type="application/json">{"cats":["Teaching Learning Materials","Pre-Primary / ECCE","Teacher Capacity Building","Assessments & Learning Study","PMU (State & District)","Teacher Resource / Handbook","Other / unidentified"],"national":[{"year":"2021-22","cr":2059.22,"students":60944415,"teachers":2349391,"rpd":0.913,"shares":[1650.9,10.7,241.5,47.4,74.2,34.6,0.0]},{"year":"2022-23","cr":2450.66,"students":67397370,"teachers":2369978,"rpd":0.996,"shares":[2156.1,2.9,131.6,17.8,106.8,32.1,3.3]},{"year":"2023-24","cr":2468.54,"students":57279485,"teachers":2051316,"rpd":1.164,"shares":[1940.8,3.2,310.5,72.9,113.2,27.7,0.3]},{"year":"2024-25","cr":2349.71,"students":50821215,"teachers":2091814,"rpd":1.238,"shares":[1813.3,0.0,321.7,89.2,96.8,28.1,0.7]},{"year":"2025-26","cr":3136.92,"students":28618195,"teachers":1524649,"rpd":2.992,"shares":[1319.6,1407.2,244.1,45.1,92.5,18.5,9.8]},{"year":"2026-27","cr":4195.73,"students":52001731,"teachers":2425304,"rpd":2.202,"shares":[2031.8,1608.0,460.0,0.0,66.1,29.8,0.0]}],"states":[{"name":"Uttar Pradesh","ab":"UP","col":2,"row":3,"cr":854.9,"prop_cr":861.9,"students":12886210,"rpd":1.82,"udise_foundational":8415884},{"name":"Bihar","ab":"BR","col":3,"row":3,"cr":606.1,"prop_cr":606.1,"students":6789197,"rpd":2.45,"udise_foundational":3778622},{"name":"Odisha","ab":"OD","col":3,"row":5,"cr":278.1,"prop_cr":283.6,"students":2410693,"rpd":3.16,"udise_foundational":1380730},{"name":"Madhya Pradesh","ab":"MP","col":1,"row":4,"cr":261.5,"prop_cr":267.1,"students":3530529,"rpd":2.03,"udise_foundational":3794301},{"name":"Karnataka","ab":"KA","col":1,"row":7,"cr":211.4,"prop_cr":219.2,"students":1714864,"rpd":3.38,"udise_foundational":2230219},{"name":"Maharashtra","ab":"MH","col":1,"row":5,"cr":207.1,"prop_cr":207.1,"students":3515561,"rpd":1.61,"udise_foundational":3954554},{"name":"Jharkhand","ab":"JH","col":3,"row":4,"cr":203.2,"prop_cr":214.6,"students":2322674,"rpd":2.4,"udise_foundational":1592946},{"name":"Assam","ab":"AS","col":5,"row":4,"cr":165.1,"prop_cr":168.2,"students":2501092,"rpd":1.81,"udise_foundational":1716788},{"name":"Rajasthan","ab":"RJ","col":0,"row":3,"cr":154.4,"prop_cr":178.4,"students":3047803,"rpd":1.39,"udise_foundational":3860795},{"name":"Himachal Pradesh","ab":"HP","col":2,"row":1,"cr":141.6,"prop_cr":145.4,"students":244643,"rpd":15.86,"udise_foundational":356603},{"name":"Gujarat","ab":"GJ","col":0,"row":4,"cr":134.4,"prop_cr":135.3,"students":2692313,"rpd":1.37,"udise_foundational":2345329},{"name":"Tamil Nadu","ab":"TN","col":1,"row":8,"cr":122.8,"prop_cr":131.0,"students":1542383,"rpd":2.18,"udise_foundational":2975408},{"name":"Jammu & Kashmir","ab":"JK","col":1,"row":0,"cr":119.7,"prop_cr":129.4,"students":389936,"rpd":8.41,"udise_foundational":867883},{"name":"Punjab","ab":"PB","col":1,"row":1,"cr":119.7,"prop_cr":124.2,"students":957593,"rpd":3.42,"udise_foundational":1766661},{"name":"Chhattisgarh","ab":"CG","col":2,"row":5,"cr":118.4,"prop_cr":121.9,"students":1596758,"rpd":2.03,"udise_foundational":1426807},{"name":"Andhra Pradesh","ab":"AP","col":2,"row":6,"cr":74.6,"prop_cr":74.6,"students":1396329,"rpd":1.46,"udise_foundational":1853280},{"name":"Delhi","ab":"DL","col":2,"row":2,"cr":70.7,"prop_cr":71.5,"students":732317,"rpd":2.65,"udise_foundational":937368},{"name":"West Bengal","ab":"WB","col":4,"row":4,"cr":63.5,"prop_cr":95.7,"students":643200,"rpd":2.7,"udise_foundational":3999447},{"name":"Haryana","ab":"HR","col":1,"row":2,"cr":53.0,"prop_cr":53.1,"students":874411,"rpd":1.66,"udise_foundational":1080750},{"name":"Telangana","ab":"TG","col":1,"row":6,"cr":49.9,"prop_cr":63.7,"students":937283,"rpd":1.46,"udise_foundational":1677538},{"name":"Uttarakhand","ab":"UK","col":3,"row":2,"cr":40.4,"prop_cr":43.0,"students":343360,"rpd":3.23,"udise_foundational":536162},{"name":"Kerala","ab":"KL","col":0,"row":8,"cr":36.1,"prop_cr":36.8,"students":457875,"rpd":2.16,"udise_foundational":1482482},{"name":"Manipur","ab":"MN","col":6,"row":5,"cr":21.1,"prop_cr":21.1,"students":47635,"rpd":12.11,"udise_foundational":193583},{"name":"Tripura","ab":"TR","col":5,"row":6,"cr":17.6,"prop_cr":18.4,"students":207497,"rpd":2.33,"udise_foundational":146154},{"name":"Mizoram","ab":"MZ","col":6,"row":6,"cr":12.1,"prop_cr":13.2,"students":62464,"rpd":5.33,"udise_foundational":95473},{"name":"Dadra & Nagar Haveli and Daman & Diu","ab":"DN","col":0,"row":5,"cr":9.3,"prop_cr":13.3,"students":42186,"rpd":6.03,"udise_foundational":36027},{"name":"Sikkim","ab":"SK","col":4,"row":3,"cr":8.8,"prop_cr":10.0,"students":18739,"rpd":12.91,"udise_foundational":35933},{"name":"Arunachal Pradesh","ab":"AR","col":6,"row":3,"cr":8.4,"prop_cr":8.8,"students":null,"rpd":null,"udise_foundational":94202},{"name":"Andaman & Nicobar Islands","ab":"AN","col":3,"row":9,"cr":8.4,"prop_cr":9.6,"students":17837,"rpd":12.87,"udise_foundational":18607},{"name":"Ladakh","ab":"LA","col":2,"row":0,"cr":6.8,"prop_cr":7.1,"students":5500,"rpd":33.94,"udise_foundational":19768},{"name":"Nagaland","ab":"NL","col":6,"row":4,"cr":6.7,"prop_cr":6.8,"students":null,"rpd":null,"udise_foundational":139999},{"name":"Chandigarh","ab":"CH","col":3,"row":1,"cr":4.5,"prop_cr":4.5,"students":40006,"rpd":3.09,"udise_foundational":61378},{"name":"Puducherry","ab":"PY","col":2,"row":8,"cr":3.1,"prop_cr":3.1,"students":29587,"rpd":2.85,"udise_foundational":60717},{"name":"Meghalaya","ab":"ML","col":5,"row":5,"cr":1.4,"prop_cr":4.6,"students":null,"rpd":null,"udise_foundational":402202},{"name":"Goa","ab":"GA","col":0,"row":6,"cr":0.4,"prop_cr":0.4,"students":null,"rpd":null,"udise_foundational":76793},{"name":"Lakshadweep","ab":"LD","col":0,"row":9,"cr":0.4,"prop_cr":0.8,"students":3256,"rpd":3.08,"udise_foundational":3400}],"udise":{"source":"UDISE+ 2023-24 report (Table 2.1), Ministry of Education, Department of School Education & Literacy, Government of India","source_url":"https://www.dsel-education.gov.in/static/uploads/2025/09/57501621802afd72e8beca744b1bc7c0.pdf","year":"2023-24","national_foundational_enrolment":53329853,"national_total_enrolment":248045828}}</script>
+<script>
+(() => {
+"use strict";
+const D = JSON.parse(document.getElementById("embed").textContent);
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CATCOL = ["--s1","--s2","--s3","--s4","--s5","--s6","--s7"];
+const CATSHORT = ["Learning materials","Pre-primary support","Teacher capacity",
+  "Assessments","Project units","Teacher handbooks","Other"];
+const fmtIN = n => n.toLocaleString("en-IN");
+const R = "₹";
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById("tip");
+function showTip(html, ev) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + pad, y = ev.clientY + pad;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - pad;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.style.display = "none"; }
+function attachTip(el, html) {
+  el.addEventListener("pointermove", ev => showTip(html, ev));
+  el.addEventListener("pointerleave", hideTip);
+}
+
+/* ---------- hero division scroller ---------- */
+const heroNum = document.getElementById("heroNum");
+const heroUnit = document.getElementById("heroUnit");
+let heroCur = 4195.73, heroAnim = null;
+function heroFmt(v, fmt) {
+  if (fmt === "cr") return R + fmtIN(Math.round(v * 100) / 100) + " Cr";
+  if (fmt === "rs") return R + fmtIN(Math.round(v));
+  return R + v.toFixed(2);
+}
+function heroSet(target, fmt, unit) {
+  heroUnit.textContent = unit;
+  if (RM) { heroNum.textContent = heroFmt(target, fmt); heroCur = target; return; }
+  cancelAnimationFrame(heroAnim);
+  const from = heroCur, t0 = performance.now(), dur = 700;
+  const tick = t => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    const v = from + (target - from) * e;
+    heroNum.textContent = heroFmt(v, fmt);
+    if (p < 1) heroAnim = requestAnimationFrame(tick); else heroCur = target;
+  };
+  heroAnim = requestAnimationFrame(tick);
+}
+const heroObs = new IntersectionObserver(es => {
+  es.forEach(en => {
+    if (!en.isIntersecting) return;
+    const s = en.target.dataset;
+    heroSet(+s.num, s.fmt, s.unit);
+  });
+}, { threshold: 0.6 });
+document.querySelectorAll("#heroSteps .step").forEach(s => heroObs.observe(s));
+
+/* ---------- UDISE+ comparison ---------- */
+(function udiseCompare() {
+  const n27 = D.national[5];
+  const u = D.udise;
+  if (!u) return;
+  document.getElementById("udiseFound").textContent =
+    (u.national_foundational_enrolment / 1e7).toFixed(2) + " crore";
+  const share = n27.students / u.national_foundational_enrolment * 100;
+  document.getElementById("udiseShare").textContent = share.toFixed(0) + "%";
+})();
+
+/* ---------- isotype dots ---------- */
+const n27 = D.national[5];
+function buildDots(id, count, unitLabel, per) {
+  const box = document.getElementById(id);
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement("i");
+    d.style.transitionDelay = RM ? "0s" : (i * 6) + "ms";
+    box.appendChild(d);
+  }
+  attachTip(box, "<b>" + unitLabel + "</b><br>" + count + " dots, each " + per);
+}
+buildDots("dotsKids", Math.round(n27.students / 250000),
+  fmtIN(n27.students) + " children", "2.5 lakh children");
+buildDots("dotsTeach", Math.round(n27.teachers / 250000),
+  fmtIN(n27.teachers) + " teachers", "2.5 lakh teachers");
+const dotObs = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) en.target.classList.add("on");
+}), { threshold: 0.25 });
+dotObs.observe(document.getElementById("dotsKids"));
+dotObs.observe(document.getElementById("dotsTeach"));
+
+/* ---------- the climb (columns) ---------- */
+function svgEl(tag, attrs, parent) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+(function climb() {
+  const svg = document.getElementById("climbChart");
+  const W = 860, H = 320, L = 56, Rp = 16, T = 34, B = 34;
+  const iw = W - L - Rp, ih = H - T - B;
+  const max = 4500;
+  const y = v => T + ih - v / max * ih;
+  [0, 1500, 3000, 4500].forEach(v => {
+    svgEl("line", { x1: L, x2: W - Rp, y1: y(v), y2: y(v), class: v ? "grid" : "base" }, svg);
+    if (v) svgEl("text", { x: L - 8, y: y(v) + 4, "text-anchor": "end", class: "axis" }, svg)
+      .textContent = fmtIN(v);
+  });
+  const bw = 24, slot = iw / 6;
+  D.national.forEach((r, i) => {
+    const cx = L + slot * i + slot / 2;
+    const g = svgEl("g", {}, svg);
+    const bar = svgEl("path", {
+      d: `M${cx - bw / 2},${y(0)} V${y(r.cr) + 4} q0,-4 4,-4 h${bw - 8} q4,0 4,4 V${y(0)} Z`,
+      fill: "var(--s1)"
+    }, g);
+    svgEl("rect", { x: cx - slot / 2, y: T, width: slot, height: ih + B, fill: "transparent" }, g);
+    svgEl("text", { x: cx, y: y(r.cr) - 8, "text-anchor": "middle", class: "dlab" }, g)
+      .textContent = fmtIN(Math.round(r.cr));
+    svgEl("text", { x: cx, y: H - 12, "text-anchor": "middle", class: "axis" }, g)
+      .textContent = r.year;
+    attachTip(g, "<b>" + r.year + "</b><br>Approved " + R + fmtIN(r.cr) + " Cr" +
+      (r.students ? "<br>" + fmtIN(r.students) + " children covered" : ""));
+  });
+  const t = document.getElementById("climbTable");
+  t.innerHTML = "<tr><th>Year</th><th>Approved " + R + " Cr</th><th>Children covered</th><th>Teachers covered</th></tr>" +
+    D.national.map(r => "<tr><td>" + r.year + "</td><td>" + fmtIN(r.cr) + "</td><td>" +
+      fmtIN(r.students) + "</td><td>" + fmtIN(r.teachers) + "</td></tr>").join("");
+})();
+
+/* ---------- rupees per child per day (line) ---------- */
+(function rpd() {
+  const svg = document.getElementById("rpdChart");
+  const W = 860, H = 240, L = 56, Rp = 150, T = 26, B = 34;
+  const iw = W - L - Rp, ih = H - T - B, max = 3.2;
+  const x = i => L + iw * i / 5, y = v => T + ih - v / max * ih;
+  [0, 1, 2, 3].forEach(v => {
+    svgEl("line", { x1: L, x2: W - Rp + 30, y1: y(v), y2: y(v), class: v ? "grid" : "base" }, svg);
+    if (v) svgEl("text", { x: L - 8, y: y(v) + 4, "text-anchor": "end", class: "axis" }, svg)
+      .textContent = v.toFixed(2);
+  });
+  const pts = D.national.map((r, i) => [x(i), y(r.rpd)]);
+  svgEl("path", {
+    d: "M" + pts.map(p => p.join(",")).join(" L") + ` L${pts[5][0]},${y(0)} L${pts[0][0]},${y(0)} Z`,
+    fill: "var(--wash)"
+  }, svg);
+  svgEl("path", { d: "M" + pts.map(p => p.join(",")).join(" L"),
+    fill: "none", stroke: "var(--s1)", "stroke-width": 2,
+    "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  D.national.forEach((r, i) => {
+    const g = svgEl("g", {}, svg);
+    svgEl("circle", { cx: x(i), cy: y(r.rpd), r: 6.5, fill: "var(--card)" }, g);
+    svgEl("circle", { cx: x(i), cy: y(r.rpd), r: 4.5, fill: "var(--s1)" }, g);
+    svgEl("rect", { x: x(i) - 24, y: T, width: 48, height: ih + B, fill: "transparent" }, g);
+    svgEl("text", { x: x(i), y: H - 12, "text-anchor": "middle", class: "axis" }, g)
+      .textContent = r.year.slice(2);
+    attachTip(g, "<b>" + r.year + "</b><br>" + R + r.rpd.toFixed(2) + " per child per day");
+  });
+  svgEl("text", { x: pts[5][0] + 14, y: pts[5][1] + 4, class: "dlab" }, svg)
+    .textContent = R + "2.20 per child per day";
+  const ann = svgEl("text", { x: pts[4][0] - 14, y: pts[4][1] + 2, "text-anchor": "end" }, svg);
+  ann.textContent = "cohort narrows to";
+  const ann2 = svgEl("text", { x: pts[4][0] - 14, y: pts[4][1] + 15, "text-anchor": "end" }, svg);
+  ann2.textContent = "pre-primary to Grade 2";
+})();
+
+/* ---------- rupee morph + small multiples ---------- */
+const rbar = document.getElementById("rbar");
+D.cats.forEach((c, i) => {
+  const d = document.createElement("div");
+  d.style.background = `var(${CATCOL[i]})`;
+  d.style.flexGrow = "0";
+  rbar.appendChild(d);
+});
+function paise(r) {
+  return r.shares.map(s => s / r.cr * 100);
+}
+function setRupee(idx) {
+  const r = D.national[idx];
+  document.getElementById("rbarYear").textContent = r.year;
+  const ps = paise(r);
+  [...rbar.children].forEach((d, i) => {
+    d.style.flexGrow = String(Math.max(ps[i], 0));
+    d.style.display = ps[i] < 0.1 ? "none" : "block";
+  });
+}
+[...rbar.children].forEach((d, i) => {
+  d.addEventListener("pointermove", ev => {
+    const yr = document.getElementById("rbarYear").textContent;
+    const r = D.national.find(n => n.year === yr);
+    const ps = paise(r);
+    showTip("<b>" + CATSHORT[i] + "</b><br>" + yr + " · " + ps[i].toFixed(0) +
+      " paise in the rupee<br>" + R + fmtIN(r.shares[i]) + " Cr", ev);
+  });
+  d.addEventListener("pointerleave", hideTip);
+});
+setRupee(0);
+const rObs = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) setRupee(+en.target.dataset.year);
+}), { threshold: 0.6 });
+document.querySelectorAll("#rupeeSteps .step2").forEach(s => rObs.observe(s));
+
+const legendHTML = D.cats.map((c, i) =>
+  `<span><i style="background:var(${CATCOL[i]})"></i>${CATSHORT[i]}</span>`).join("");
+document.getElementById("rlegend").innerHTML = legendHTML;
+document.getElementById("slegend").innerHTML = legendHTML;
+
+(function smallMult() {
+  const host = document.getElementById("smallMult");
+  D.national.forEach(r => {
+    const ps = paise(r);
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;align-items:center;gap:10px;margin:7px 0;";
+    const lab = document.createElement("span");
+    lab.className = "sans";
+    lab.style.cssText = "flex:0 0 64px;font-size:0.78rem;color:var(--ink-2);font-variant-numeric:tabular-nums;";
+    lab.textContent = r.year;
+    row.appendChild(lab);
+    const bar = document.createElement("div");
+    bar.style.cssText = "flex:1;display:flex;height:22px;border-radius:5px;overflow:hidden;gap:2px;background:var(--hairline);";
+    ps.forEach((p, i) => {
+      if (p < 0.1) return;
+      const seg = document.createElement("div");
+      seg.style.cssText = `flex-grow:${p};background:var(${CATCOL[i]});min-width:0;`;
+      attachTip(seg, "<b>" + CATSHORT[i] + "</b><br>" + r.year + " · " +
+        p.toFixed(0) + " paise in the rupee<br>" + R + fmtIN(r.shares[i]) + " Cr");
+      bar.appendChild(seg);
+    });
+    row.appendChild(bar);
+    host.appendChild(row);
+  });
+  const t = document.getElementById("rupeeTable");
+  t.innerHTML = "<tr><th>Year</th>" + CATSHORT.map(c => "<th>" + c + " " + R + " Cr</th>").join("") + "</tr>" +
+    D.national.map(r => "<tr><td>" + r.year + "</td>" +
+      r.shares.map(s => "<td>" + fmtIN(s) + "</td>").join("") + "</tr>").join("");
+})();
+
+/* ---------- tile map ---------- */
+const BINS_RPD = [
+  { lt: 2, lab: "under " + R + "2" }, { lt: 3, lab: R + "2 to 3" },
+  { lt: 5, lab: R + "3 to 5" }, { lt: 10, lab: R + "5 to 10" },
+  { lt: 20, lab: R + "10 to 20" }, { lt: 1e9, lab: R + "20 and above" }];
+const BINS_CR = [
+  { lt: 10, lab: "under 10" }, { lt: 50, lab: "10 to 50" },
+  { lt: 100, lab: "50 to 100" }, { lt: 200, lab: "100 to 200" },
+  { lt: 400, lab: "200 to 400" }, { lt: 1e9, lab: "400 and above" }];
+let mapMode = "rpd";
+function bin(v, bins) { return bins.findIndex(b => v < b.lt); }
+(function tileMap() {
+  const svg = document.getElementById("mapChart");
+  const S = 88, G = 6, OX = 16, OY = 10;
+  D.states.forEach(st => {
+    const g = svgEl("g", { "data-st": st.ab }, svg);
+    const x = OX + st.col * (S + G), y = OY + st.row * (S + G);
+    svgEl("rect", { x, y, width: S, height: S, rx: 10, class: "tile" }, g);
+    const ab = svgEl("text", { x: x + 10, y: y + 24, class: "tile-ab", "text-anchor": "start" }, g);
+    ab.textContent = st.ab;
+    const val = svgEl("text", { x: x + 10, y: y + S - 12, class: "tile-val", "text-anchor": "start" }, g);
+    st._els = { rect: g.firstChild, ab, val };
+    attachTip(g, "<b>" + st.name + "</b><br>Approved " + R + fmtIN(st.cr) + " Cr" +
+      (st.students ? "<br>" + fmtIN(st.students) + " children covered<br>" +
+        R + st.rpd.toFixed(2) + " per child per day"
+        : "<br>child coverage not printed in the annexure"));
+  });
+  renderMap();
+  const t = document.getElementById("mapTable");
+  t.innerHTML = "<tr><th>State or UT</th><th>Approved " + R + " Cr</th><th>Children covered</th><th>" + R + " per child per day</th></tr>" +
+    D.states.map(s => "<tr><td>" + s.name + "</td><td>" + fmtIN(s.cr) + "</td><td>" +
+      (s.students ? fmtIN(s.students) : "not printed") + "</td><td>" +
+      (s.rpd != null ? s.rpd.toFixed(2) : "not printed") + "</td></tr>").join("");
+})();
+function renderMap() {
+  const bins = mapMode === "rpd" ? BINS_RPD : BINS_CR;
+  D.states.forEach(st => {
+    const v = mapMode === "rpd" ? st.rpd : st.cr;
+    const { rect, ab, val } = st._els;
+    if (v == null) {
+      rect.setAttribute("fill", "var(--hairline)");
+      ab.setAttribute("fill", "var(--ink-2)");
+      val.setAttribute("fill", "var(--ink-2)");
+      val.textContent = "n.p.";
+    } else {
+      const b = bin(v, bins);
+      rect.setAttribute("fill", `var(--seq${b})`);
+      ab.setAttribute("fill", `var(--seqtx${b})`);
+      val.setAttribute("fill", `var(--seqtx${b})`);
+      val.textContent = mapMode === "rpd" ? R + v.toFixed(2) : R + fmtIN(v) + " Cr";
+    }
+  });
+  document.getElementById("mapLegend").innerHTML =
+    bins.map((b, i) => `<i style="background:var(--seq${i})"></i>`).join("") +
+    `<em>${bins[0].lab} → ${bins[5].lab}` +
+    (mapMode === "rpd" ? " per child per day" : " approved") + "</em>" +
+    `<span><i style="background:var(--hairline);width:14px;"></i> n.p. = coverage not printed</span>`;
+  document.getElementById("mapSub").textContent = mapMode === "rpd"
+    ? R + " per covered child per day, 365-day basis"
+    : "Total approved outlay, " + R + " crore";
+}
+const bR = document.getElementById("btnRpd"), bC = document.getElementById("btnCr");
+function setMode(m) {
+  mapMode = m;
+  bR.setAttribute("aria-pressed", String(m === "rpd"));
+  bC.setAttribute("aria-pressed", String(m === "cr"));
+  renderMap();
+}
+bR.addEventListener("click", () => setMode("rpd"));
+bC.addEventListener("click", () => setMode("cr"));
+
+/* ---------- dumbbell ---------- */
+(function dumb() {
+  const svg = document.getElementById("dumbChart");
+  const pool = D.states.filter(s => s.prop_cr != null);
+  const rows = pool.slice(0, 12);
+  const wb = pool.find(s => s.ab === "WB");
+  if (wb && !rows.includes(wb)) { rows.push(wb); }
+  const W = 860, H = 520, L = 150, Rp = 90, T = 16, B = 30;
+  const iw = W - L - Rp, ih = H - T - B, max = 900;
+  const x = v => L + v / max * iw;
+  [0, 300, 600, 900].forEach(v => {
+    svgEl("line", { x1: x(v), x2: x(v), y1: T, y2: T + ih, class: v ? "grid" : "base" }, svg);
+    svgEl("text", { x: x(v), y: H - 8, "text-anchor": "middle", class: "axis" }, svg)
+      .textContent = fmtIN(v);
+  });
+  rows.forEach((s, i) => {
+    const cy = T + ih * (i + 0.5) / rows.length;
+    const g = svgEl("g", {}, svg);
+    svgEl("text", { x: L - 12, y: cy + 4, "text-anchor": "end" }, g)
+      .textContent = s.name.length > 16 ? s.ab : s.name;
+    svgEl("line", { x1: x(Math.min(s.prop_cr, s.cr)), x2: x(Math.max(s.prop_cr, s.cr)),
+      y1: cy, y2: cy, stroke: "var(--dumb-lite)", "stroke-width": 2 }, g);
+    svgEl("circle", { cx: x(s.prop_cr), cy, r: 7, fill: "var(--card)" }, g);
+    svgEl("circle", { cx: x(s.prop_cr), cy, r: 5, fill: "var(--dumb-lite)" }, g);
+    svgEl("circle", { cx: x(s.cr), cy, r: 7, fill: "var(--card)" }, g);
+    svgEl("circle", { cx: x(s.cr), cy, r: 5, fill: "var(--s1)" }, g);
+    const cut = (1 - s.cr / s.prop_cr) * 100;
+    if (cut > 5) {
+      svgEl("text", { x: x(Math.max(s.prop_cr, s.cr)) + 12, y: cy + 4, class: "dlab" }, g)
+        .textContent = "cut " + cut.toFixed(0) + "%";
+    }
+    svgEl("rect", { x: L, y: cy - ih / rows.length / 2, width: iw + Rp, height: ih / rows.length,
+      fill: "transparent" }, g);
+    attachTip(g, "<b>" + s.name + "</b><br>Proposed " + R + fmtIN(s.prop_cr) +
+      " Cr<br>Approved " + R + fmtIN(s.cr) + " Cr");
+  });
+  const t = document.getElementById("dumbTable");
+  t.innerHTML = "<tr><th>State</th><th>Proposed " + R + " Cr</th><th>Approved " + R + " Cr</th></tr>" +
+    rows.map(s => "<tr><td>" + s.name + "</td><td>" + fmtIN(s.prop_cr) + "</td><td>" +
+      fmtIN(s.cr) + "</td></tr>").join("");
+})();
+})();
+</script>

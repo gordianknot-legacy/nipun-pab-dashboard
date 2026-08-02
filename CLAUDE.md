@@ -302,7 +302,26 @@ Always run, in this order:
 python apply_<year>_pass.py     # idempotent; re-run must report 0 new adds
 python regression_battery.py    # must print BATTERY GREEN
 python qa_workbook.py           # MISMATCH files should be none
+python check_stale_content.py   # must print STALE CONTENT CHECK: PASS
 ```
+
+A change that touches only `dashboard.py` needs `check_stale_content.py`
+alone. The apply passes and the regression battery both read the workbook,
+so re-running them proves nothing when the workbook is untouched.
+
+`check_stale_content.py` is a fourth, separate check: it doesn't touch
+whether the *numbers* are right, only whether the deployed app matches
+the working workbook and doesn't silently mislabel or hide a state-year.
+It catches exactly the three bugs this project has already shipped once
+each — `STATUS_LABEL`/`DOC_LABEL` not covering a new status or doc_type
+(§10), a state-year falling out of `ACT_MIN` (the Ladakh bug, §10), and
+an `OUTSIDE_HEADS` prefix colliding with a real state's content (the
+Tripura bug, §3) — plus a drift check between `PAB/` and
+`deploy_dashboard/`'s copies of the workbook, a `git status`/ahead-behind
+check on `deploy_dashboard`, and a report (not a fail) on
+`pdfs/manifest.json` entries that no longer match a Log row. Run it
+before every commit that touches the workbook or `dashboard.py`, and
+again immediately before pushing `deploy_dashboard/`.
 
 Then the reconciliation audit across all years. As of the 2021-22 pass,
 **202 of 202 documents that print a NIPUN subtotal reconcile against it**
@@ -484,6 +503,99 @@ printed and say so in the docstring, or someone will "fix" it later.
 - Playwright: the live app renders **inside an iframe** whose URL ends
   `/~/+/`; `page.inner_text("body")` returns 0 chars. Tabs are
   `[role="tab"]`, not `button[role="tab"]` or `[data-baseweb="tab"]`.
+  Running locally there is no iframe, so query the page directly. Streamlit
+  renders **every** tab's body into the DOM, so a `:visible` filter is
+  needed to hit the widget in the tab you actually opened. Table cells are
+  drawn on a canvas and never appear in `inner_text`, so a table can only be
+  checked by screenshot.
+- The app is four tabs: The Story, National Picture, Explore & Compare,
+  Data Quality. It was six until the 2026-08 redesign; Compare States was
+  folded into the state explorer behind one shared state multiselect (one
+  state selected gives the annexure view, two or more give the comparison),
+  and Analytics became a national-scope section of National Picture.
+- **Keep `STATUS_LABEL`, `DOC_LABEL`, `OUTSIDE_HEADS` and `_COMPANION` as
+  flat literal assignments.** `check_stale_content.py:54` recovers them by
+  regex from the source text and `eval`s the match, and the pattern stops at
+  the first closing bracket. Nesting a dict inside one of them, or building
+  it from a comprehension, makes the check silently skip that constant
+  rather than fail loudly.
+- `.streamlit/config.toml` carries the theme (CSF blue as `primaryColor`,
+  the story page's paper and ink). It is **not** covered by
+  `check_stale_content.py`'s drift check, which compares only `dashboard.py`
+  and the workbook, so the `PAB/` and `deploy_dashboard/` copies have to be
+  kept in step by hand.
+- **Three faces, three jobs, no overlap.** Instrument Serif carries
+  headlines and nothing else, Inter Tight carries every word of running
+  text, label and control, JetBrains Mono carries every digit that means
+  something (metric values, axis tick labels). All three load from Google
+  Fonts in `inject_css()`, because Streamlit Cloud runs Linux with no
+  licensed faces and a system-serif fallback there lands on DejaVu. An
+  earlier build used a warm cream ground with Charter and a Source Serif
+  fallback and read as a default rather than a decision.
+- The canvas is a **cool** near-white (`#fafafa`), not a warm cream. The
+  brand navy and yellow are the only saturated things on the page and a
+  warm ground fights the navy and muddies the yellow.
+- The ink ramp has four steps and they are not interchangeable. `MUTED`
+  (`#a1a1aa`) is furniture only, for axis values and eyebrows. Anything a
+  reader actually reads, captions included, sits at `QUIET` (`#71717a`) or
+  darker; zinc-400 on a near-white ground is below comfortable reading
+  contrast and captions set there looked washed out.
+- Structure is hairlines and tinted surfaces, never shadow. Radius is 4px on
+  controls, 6px on section panels, 2-3px on marks. If you add a component,
+  match that.
+- **Every section is a `with section(label, tone)` block**, which is a
+  bordered `st.container` with an eyebrow inside. Tones come from `TONES`
+  and follow the Scouted formula: the hue at 3-7 percent for the fill, the
+  same hue at 20-60 percent for the stroke, and a darkened version for the
+  label so it stays readable at 0.68rem. Hue is assigned by what a section
+  is about, so the same head keeps its colour across tabs.
+- The tone reaches the panel through **`:has()`**, because Streamlit owns
+  the wrapper and gives no hook to put a class on it. In 1.60 a bordered
+  container is `[data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"]`.
+  The parent restriction is load-bearing: bare `stVerticalBlock` is also the
+  generic block element and tints the entire page. If a browser lacks
+  `:has()` the panel just falls back to the neutral border.
+- **If you script the eyebrow-to-section conversion, compute every section
+  boundary before rewriting any line.** Doing it in reverse and detecting
+  boundaries as you go silently nests each section inside the one above it,
+  because the next `eyebrow(` has already become a `with section(` and the
+  boundary test stops matching. The tell is one giant tinted panel per tab
+  with everything inside it.
+- `st.dataframe` renders on a canvas and takes the single `font` from
+  `config.toml`, so table figures cannot be monospaced without making the
+  labels monospace too. Tables stay in Inter Tight; the prominent numbers
+  (metrics, axis ticks) are where the mono does its work.
+- **`st.dataframe` ignores a Styler's `na_rep` and any NaN-handling
+  formatter**, painting the cell as a literal `None` from Arrow while
+  honouring the format string for every non-null cell in the same column.
+  Pre-render such columns to text (`as_text()`) instead. Costs right
+  alignment, which is worth it.
+- **The Story tab is built natively, not embedded.** `nipun_story.html` was
+  never committed to the deploy repo, so the live app never had it at all;
+  when it was finally embedded it went in as a fixed-height iframe, which
+  meant a scrollbar inside a scrollbar, a hero cut off mid-number, and a
+  full-bleed navy block dropped into a warm-paper page. It is now rebuilt
+  from the workbook in Streamlit and Altair, so it carries the app's own
+  design and recomputes on load rather than shipping frozen JSON. The HTML
+  file is kept as the design reference and is no longer read at runtime.
+- Story metrics reuse `story_prep.py`'s conventions **unchanged**, because
+  the published story quotes them: children covered is the max
+  `approved_physical` on TLM rows per state-year, teachers covered is the
+  max across Teacher Resource / Handbook and Capacity Building rows (max,
+  not sum, since the same cohort is named on both), the per-day basis is 365
+  days, and per-child rates are computed only over states whose student
+  count is known so an unknown denominator cannot deflate the rate.
+- **Do not name a module-level constant `GRID`.** The palette already uses
+  it for the hairline colour, and a tile-map dict of the same name shadowed
+  it and fed a dict to every chart's `gridColor`, taking down all four tabs
+  at once. The cartogram dict is `TILE_GRID`.
+- Both story map measures are heavily skewed (Ladakh at Rs 33.94 per child
+  per day against a median near Rs 2). A linear colour ramp paints almost
+  every tile the same pale blue; the map uses **quantile bins** instead, and
+  derives the label colour from the bin rather than the raw value so white
+  text never lands on a pale tile.
+- There is **no sidebar**. The quality-marks key sits in Data Quality next
+  to the grid it explains, and the build note at the foot of that tab.
 
 ---
 
@@ -673,7 +785,112 @@ easy to miss until a state silently vanishes from the totals.
 
 ---
 
-## 13. Commit conventions
+## 13. The validity gate must accept every read-off-the-page tier
+
+`dashboard.py` decides a figure is publishable if `physical x unit cost`
+reproduces the printed financial, **or** the figure carries a
+read-off-the-page verification tier. For a long time that second clause
+tested only `vision-verified`, and the omission was invisible because it
+only bites a row that is hand-read *and* has no physical or unit cost to
+run the arithmetic on.
+
+Ten rows are exactly that. Nine tenths of the loss is Kerala 2021-22, whose
+recovered rows are financial-only. The effect:
+
+| | dashboard, before | story_prep.py and CLAUDE.md |
+|---|---|---|
+| 2021-22 | 2031.07 | **2059.22** |
+| 2022-23 | 2450.37 | **2450.66** |
+| 2024-25 | 2349.66 | **2349.71** |
+| all years | 16632.29 | **16660.77** |
+
+So the app was quietly 28.48 Cr under its own published figures, and the
+state whose data cost the most effort to recover (see §11, the portal
+serving Haryana's minutes under Kerala's URL) was the one being dropped.
+
+The gate now accepts `vision`, `vision-verified` and `manual-recovery` on
+either side. All three mean someone opened the page. **When a new tier is
+added to `p_verified`/`a_verified`, decide explicitly whether it belongs in
+`_READ`**, and check the year totals against this table afterwards; a tier
+missing from that list fails silently and downward, which is the direction
+nobody notices.
+
+`story_prep.py` accepts only the two vision tiers, so it and the app now
+differ by `manual-recovery`. That is 2 rows and no rupees today, but the
+file claims to replicate the dashboard exactly, so keep them in step.
+
+---
+
+## 14. What the grade-scope question actually is
+
+The dashboard publishes outlay split by the grade span each budget line
+names. Before building it the premise was checked against the pages, and
+the premise was backwards, so check this section before trusting anyone's
+summary of it (including this one).
+
+**The usual assumption is that NIPUN covered Grades 1-3 and was later
+broadened to Grade 5. In these documents it runs the other way.** Verified
+by rendering the pages at 200 DPI:
+
+| Read | Page | What it prints |
+|---|---|---|
+| UP 2021-22 | p890 | `86.0.3 Capacity building of Teachers of Grades I to V (New)`, printed verbatim |
+| Bihar 2022-23 | p2170 | TLM label names no span; the remark carries it, "10952303 students as per UDISE+ 2020-21 of Grades 1 to 5" |
+| Chhattisgarh 2025-26 | p49-50 | the split, side by side: "pre-primary sections in Govt. Schools and Grade 1 and 2" and "in Govt. Schools and Grade 3 to 5" |
+| MP 2025-26 | p45 | same split; its Grade 3-5 label is cut at the page boundary in capture but the printed remark holds |
+| Tamil Nadu 2025-26 | p38 | `5.6.3` handbook and capacity lines labelled "Class III to V" whose remarks read "Grade I-V" |
+| UP 2026-27 | p65 | re-broadened, `TLM ... from Balvatika to Grade 5 (C6777)`, `Grades I to V (C6778/C6779)` |
+
+So the shape is wide (Grades 1-5) through 2024-25, narrowed in **2025-26**
+to a Foundational Stage block (pre-primary to Grade 2) with a separate
+Grade 3-5 line that only 12 states and UTs printed, then wide again in
+**2026-27**. `fetch_udise.py:15-16` already carried this reading and was
+the corroborating source.
+
+### Why the chart shows an "unspecified" band instead of an estimate
+Most 2021-22 to 2024-25 lines name **no** grade span at all, so a strict
+like-for-like series cannot be read off the print. That outlay is shown as
+"Not stated on the page" rather than allocated across bands. Resist
+closing the gap with a UDISE enrolment deflator and publishing the result
+next to printed figures; it would be the one invented number in a workbook
+whose whole standard is fidelity to print. If it is ever wanted, it
+belongs in its own clearly-labelled estimate, not in this band.
+
+### Tagging precedence, and why the label beats the remark
+Printed C-code, then the printed line label, then the coordinator remark.
+
+- The **C-code** wins because 2026-27's `C6800` label names both
+  "Pre-Primary/Balvatika" and "Class I to V" in one string and only the
+  code settles that it is the full span. Every 2026-27 FLN line carries one.
+- The **label** beats the **remark** because the label is the budget line's
+  own name and the remark is prose about it. They genuinely disagree in the
+  source: Tamil Nadu 2025-26 p38 prints a handbook line for "Class III to
+  V" whose remark reads "for 80,495 teachers in Grade I-V". Both are
+  printed. That is a §9 source-internal inconsistency to record, not a
+  capture error to repair.
+- The **remark** is a real fallback, not a guess. Bihar 2022-23's TLM line
+  carries its span only there, and MP and Maharashtra 2025-26 have labels
+  truncated at a page boundary whose remarks still name Grade III to V.
+
+Two signals that look useful and are not. The printed **Activity** column
+names the scope ("5.8.2 - TLM (Pre-Primary to Grade 2)") but the workbook
+stores only its code, so that text is unavailable. And the **`-FS`** suffix
+on the sub-component is printed in 2026-27 as well as 2025-26, so it
+fingerprints the Prabandh layout rather than the grade scope, even though
+`component_group` happens to carry it only for 2025-26.
+
+### Counting the carve-out states
+Twelve states and UTs print a separate Grade 3-5 line in 2025-26. Two
+traps in counting them. **Odisha** prints the line with no recoverable
+amount, so it vanishes from any `a_valid` filter while still being a state
+that printed it; the caption is built from all primary-document rows for
+that reason. **Rajasthan** matches on a label scan of the raw Budget sheet
+but its row lives in `Rajasthan_2025-26_minutes_23697.pdf`, a duplicate
+download tagged `minutes (alt)`, so `ACT_MIN` correctly drops it.
+
+---
+
+## 15. Commit conventions
 
 No AI attribution or co-author trailers in commits or PR bodies. Commit
 messages explain *why* a value changed and cite the printed figures.
