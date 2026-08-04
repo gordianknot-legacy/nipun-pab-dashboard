@@ -719,7 +719,7 @@ def themed(chart):
     # column-wise; titles and legends are words, so they take the grotesque.
     # No serif reaches Vega, which keeps the display face out of SVG text
     # measurement entirely.
-    return (chart.configure(background="transparent", font=SANS)
+    return (chart.configure(background=CARD, font=SANS)
             .configure_view(stroke=None)
             .configure_axis(labelColor=MUTED, titleColor=INK2, gridColor=GRID,
                             gridDash=[2, 3], domainColor=BASELINE,
