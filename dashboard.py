@@ -752,11 +752,16 @@ def indian(n):
 
 
 @st.cache_data
-def load_udise():
+def load_udise(mtime=None):
     """UDISE+ enrolment, the one outside source the story checks against.
 
     Optional. The story degrades to omitting the cross-check rather than
-    failing if the file is not deployed alongside the app.
+    failing if the file is not deployed alongside the app. Takes the file's
+    own mtime as a cache-busting arg, matching every other cached loader in
+    this file (load(), story_metrics()) -- without it, a zero-arg
+    @st.cache_data can keep serving a stale in-process result after the
+    underlying JSON is updated on disk but the process itself doesn't
+    restart cleanly.
     """
     try:
         import json
@@ -865,7 +870,8 @@ with tab_story:
             f"in the hands of **{indian(cur.students)} children** and equip "
             f"**{indian(cur.teachers)} teachers** across every state and union "
             f"territory. That is the denominator the daily figure divides by.")
-        ud = load_udise()
+        _udise_path = Path("udise_2024_25_state_enrollment.json")
+        ud = load_udise(_os.path.getmtime(_udise_path)) if _udise_path.exists() else None
         s1, s2, s3, s4 = st.columns(4)
         s1.metric("Children reached", indian(cur.students),
                   help=f"{int(cur.students):,} children on approved teaching and "
@@ -874,7 +880,7 @@ with tab_story:
                   help=f"{int(cur.teachers):,} teachers. Counted as the larger of "
                        f"the handbook and capacity-building lines in each state, "
                        f"not their sum, because the same cohort is named on both")
-        if ud:
+        if ud and "foundational_prep_enrolment" in ud.get("national", {}):
             # Two denominators, not one. NIPUN's own grade scope is Grades
             # 1-5 (Foundational + Preparatory) in most years and narrows to
             # Foundational-only (pre-primary to Grade 2) from 2025-26 -- see
@@ -1068,10 +1074,10 @@ with tab_story:
         # Foundational -- so a Foundational-only rate alone would overstate
         # the cost per child for exactly those states. See CLAUDE.md
         # section 14.
-        if ud:
+        if ud and "foundational_prep_enrolment" in ud.get("national", {}):
             udise_f_map = {r["state"]: r["foundational_enrolment"]
                            for r in ud["states"]}
-            udise_fp_map = {r["state"]: r["foundational_prep_enrolment"]
+            udise_fp_map = {r["state"]: r.get("foundational_prep_enrolment")
                             for r in ud["states"]}
             sy_last["udise_f"] = sy_last["state"].map(udise_f_map)
             sy_last["udise_fp"] = sy_last["state"].map(udise_fp_map)
