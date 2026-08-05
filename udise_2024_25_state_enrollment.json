@@ -7,7 +7,9 @@
   "total_enrolment": 246932680,
   "total_teachers": 10122420,
   "foundational_share_pct": 21.2,
-  "foundational_enrolment": 52312506
+  "foundational_enrolment": 52312506,
+  "preparatory_enrolment": 66115921,
+  "foundational_prep_enrolment": 118428427
  },
  "states": [
   {
@@ -16,7 +18,9 @@
    "total_enrolment": 71343,
    "total_teachers": 6132,
    "foundational_share_pct": 26.8,
-   "foundational_enrolment": 19101
+   "foundational_enrolment": 19101,
+   "preparatory_enrolment": 13935,
+   "foundational_prep_enrolment": 33036
   },
   {
    "state": "Andhra Pradesh",
@@ -24,7 +28,9 @@
    "total_enrolment": 8454817,
    "total_teachers": 342721,
    "foundational_share_pct": 21.9,
-   "foundational_enrolment": 1854081
+   "foundational_enrolment": 1854081,
+   "preparatory_enrolment": 1965369,
+   "foundational_prep_enrolment": 3819450
   },
   {
    "state": "Arunachal Pradesh",
@@ -32,7 +38,9 @@
    "total_enrolment": 319826,
    "total_teachers": 25117,
    "foundational_share_pct": 29.7,
-   "foundational_enrolment": 95023
+   "foundational_enrolment": 95023,
+   "preparatory_enrolment": 78546,
+   "foundational_prep_enrolment": 173569
   },
   {
    "state": "Assam",
@@ -40,7 +48,9 @@
    "total_enrolment": 7041824,
    "total_teachers": 340471,
    "foundational_share_pct": 24.8,
-   "foundational_enrolment": 1746919
+   "foundational_enrolment": 1746919,
+   "preparatory_enrolment": 1961170,
+   "foundational_prep_enrolment": 3708089
   },
   {
    "state": "Bihar",
@@ -48,7 +58,9 @@
    "total_enrolment": 21133228,
    "total_teachers": 707516,
    "foundational_share_pct": 17.4,
-   "foundational_enrolment": 3674380
+   "foundational_enrolment": 3674380,
+   "preparatory_enrolment": 6953812,
+   "foundational_prep_enrolment": 10628192
   },
   {
    "state": "Chandigarh",
@@ -56,7 +68,9 @@
    "total_enrolment": 253012,
    "total_teachers": 9968,
    "foundational_share_pct": 21.7,
-   "foundational_enrolment": 54796
+   "foundational_enrolment": 54796,
+   "preparatory_enrolment": 54546,
+   "foundational_prep_enrolment": 109342
   },
   {
    "state": "Chhattisgarh",
@@ -64,7 +78,9 @@
    "total_enrolment": 5806871,
    "total_teachers": 285248,
    "foundational_share_pct": 25.1,
-   "foundational_enrolment": 1457463
+   "foundational_enrolment": 1457463,
+   "preparatory_enrolment": 1475899,
+   "foundational_prep_enrolment": 2933362
   },
   {
    "state": "Dadra & Nagar Haveli and Daman & Diu",
@@ -72,7 +88,9 @@
    "total_enrolment": 146825,
    "total_teachers": 5288,
    "foundational_share_pct": 25.7,
-   "foundational_enrolment": 37790
+   "foundational_enrolment": 37790,
+   "preparatory_enrolment": 35916,
+   "foundational_prep_enrolment": 73706
   },
   {
    "state": "Delhi",
@@ -80,7 +98,9 @@
    "total_enrolment": 4491032,
    "total_teachers": 161958,
    "foundational_share_pct": 21.0,
-   "foundational_enrolment": 944411
+   "foundational_enrolment": 944411,
+   "preparatory_enrolment": 1039816,
+   "foundational_prep_enrolment": 1984227
   },
   {
    "state": "Goa",
@@ -88,7 +108,9 @@
    "total_enrolment": 300546,
    "total_teachers": 15196,
    "foundational_share_pct": 24.7,
-   "foundational_enrolment": 74252
+   "foundational_enrolment": 74252,
+   "preparatory_enrolment": 69820,
+   "foundational_prep_enrolment": 144072
   },
   {
    "state": "Gujarat",
@@ -96,7 +118,9 @@
    "total_enrolment": 11501328,
    "total_teachers": 389063,
    "foundational_share_pct": 20.1,
-   "foundational_enrolment": 2313861
+   "foundational_enrolment": 2313861,
+   "preparatory_enrolment": 3193752,
+   "foundational_prep_enrolment": 5507613
   },
   {
    "state": "Haryana",
@@ -104,7 +128,9 @@
    "total_enrolment": 5769330,
    "total_teachers": 263942,
    "foundational_share_pct": 21.2,
-   "foundational_enrolment": 1222342
+   "foundational_enrolment": 1222342,
+   "preparatory_enrolment": 1422506,
+   "foundational_prep_enrolment": 2644848
   },
   {
    "state": "Himachal Pradesh",
@@ -112,7 +138,9 @@
    "total_enrolment": 1425266,
    "total_teachers": 102825,
    "foundational_share_pct": 25.5,
-   "foundational_enrolment": 363286
+   "foundational_enrolment": 363286,
+   "preparatory_enrolment": 314900,
+   "foundational_prep_enrolment": 678186
   },
   {
    "state": "Jammu & Kashmir",
@@ -120,7 +148,9 @@
    "total_enrolment": 2654012,
    "total_teachers": 166717,
    "foundational_share_pct": 32.8,
-   "foundational_enrolment": 871023
+   "foundational_enrolment": 871023,
+   "preparatory_enrolment": 623099,
+   "foundational_prep_enrolment": 1494122
   },
   {
    "state": "Jharkhand",
@@ -128,7 +158,9 @@
    "total_enrolment": 7436931,
    "total_teachers": 209203,
    "foundational_share_pct": 20.6,
-   "foundational_enrolment": 1531789
+   "foundational_enrolment": 1531789,
+   "preparatory_enrolment": 2119315,
+   "foundational_prep_enrolment": 3651104
   },
   {
    "state": "Karnataka",
@@ -136,7 +168,9 @@
    "total_enrolment": 11780251,
    "total_teachers": 452602,
    "foundational_share_pct": 18.4,
-   "foundational_enrolment": 2171065
+   "foundational_enrolment": 2171065,
+   "preparatory_enrolment": 3177962,
+   "foundational_prep_enrolment": 5349027
   },
   {
    "state": "Kerala",
@@ -144,7 +178,9 @@
    "total_enrolment": 6164059,
    "total_teachers": 292072,
    "foundational_share_pct": 23.9,
-   "foundational_enrolment": 1471957
+   "foundational_enrolment": 1471957,
+   "preparatory_enrolment": 1343690,
+   "foundational_prep_enrolment": 2815647
   },
   {
    "state": "Ladakh",
@@ -152,7 +188,9 @@
    "total_enrolment": 57107,
    "total_teachers": 6908,
    "foundational_share_pct": 35.1,
-   "foundational_enrolment": 20072
+   "foundational_enrolment": 20072,
+   "preparatory_enrolment": 12937,
+   "foundational_prep_enrolment": 33009
   },
   {
    "state": "Lakshadweep",
@@ -160,7 +198,9 @@
    "total_enrolment": 12325,
    "total_teachers": 751,
    "foundational_share_pct": 27.7,
-   "foundational_enrolment": 3409
+   "foundational_enrolment": 3409,
+   "preparatory_enrolment": 3154,
+   "foundational_prep_enrolment": 6563
   },
   {
    "state": "Madhya Pradesh",
@@ -168,7 +208,9 @@
    "total_enrolment": 15172607,
    "total_teachers": 717493,
    "foundational_share_pct": 24.2,
-   "foundational_enrolment": 3675094
+   "foundational_enrolment": 3675094,
+   "preparatory_enrolment": 4020253,
+   "foundational_prep_enrolment": 7695347
   },
   {
    "state": "Maharashtra",
@@ -176,7 +218,9 @@
    "total_enrolment": 21272611,
    "total_teachers": 747501,
    "foundational_share_pct": 18.0,
-   "foundational_enrolment": 3824091
+   "foundational_enrolment": 3824091,
+   "preparatory_enrolment": 5613086,
+   "foundational_prep_enrolment": 9437177
   },
   {
    "state": "Manipur",
@@ -184,7 +228,9 @@
    "total_enrolment": 673118,
    "total_teachers": 41490,
    "foundational_share_pct": 30.7,
-   "foundational_enrolment": 206674
+   "foundational_enrolment": 206674,
+   "preparatory_enrolment": 171785,
+   "foundational_prep_enrolment": 378459
   },
   {
    "state": "Meghalaya",
@@ -192,7 +238,9 @@
    "total_enrolment": 1061320,
    "total_teachers": 57002,
    "foundational_share_pct": 38.0,
-   "foundational_enrolment": 402845
+   "foundational_enrolment": 402845,
+   "preparatory_enrolment": 278188,
+   "foundational_prep_enrolment": 681033
   },
   {
    "state": "Mizoram",
@@ -200,7 +248,9 @@
    "total_enrolment": 279882,
    "total_teachers": 24952,
    "foundational_share_pct": 33.5,
-   "foundational_enrolment": 93898
+   "foundational_enrolment": 93898,
+   "preparatory_enrolment": 63634,
+   "foundational_prep_enrolment": 157532
   },
   {
    "state": "Nagaland",
@@ -208,7 +258,9 @@
    "total_enrolment": 414421,
    "total_teachers": 33131,
    "foundational_share_pct": 34.8,
-   "foundational_enrolment": 144398
+   "foundational_enrolment": 144398,
+   "preparatory_enrolment": 92448,
+   "foundational_prep_enrolment": 236846
   },
   {
    "state": "Odisha",
@@ -216,7 +268,9 @@
    "total_enrolment": 7644052,
    "total_teachers": 344116,
    "foundational_share_pct": 17.5,
-   "foundational_enrolment": 1339910
+   "foundational_enrolment": 1339910,
+   "preparatory_enrolment": 2010509,
+   "foundational_prep_enrolment": 3350419
   },
   {
    "state": "Puducherry",
@@ -224,7 +278,9 @@
    "total_enrolment": 240691,
    "total_teachers": 13639,
    "foundational_share_pct": 25.1,
-   "foundational_enrolment": 60342
+   "foundational_enrolment": 60342,
+   "preparatory_enrolment": 50200,
+   "foundational_prep_enrolment": 110542
   },
   {
    "state": "Punjab",
@@ -232,7 +288,9 @@
    "total_enrolment": 5908507,
    "total_teachers": 273130,
    "foundational_share_pct": 30.0,
-   "foundational_enrolment": 1772284
+   "foundational_enrolment": 1772284,
+   "preparatory_enrolment": 1299093,
+   "foundational_prep_enrolment": 3071377
   },
   {
    "state": "Rajasthan",
@@ -240,7 +298,9 @@
    "total_enrolment": 16364187,
    "total_teachers": 792265,
    "foundational_share_pct": 21.1,
-   "foundational_enrolment": 3447888
+   "foundational_enrolment": 3447888,
+   "preparatory_enrolment": 4301510,
+   "foundational_prep_enrolment": 7749398
   },
   {
    "state": "Sikkim",
@@ -248,7 +308,9 @@
    "total_enrolment": 117576,
    "total_teachers": 14994,
    "foundational_share_pct": 31.3,
-   "foundational_enrolment": 36839
+   "foundational_enrolment": 36839,
+   "preparatory_enrolment": 24940,
+   "foundational_prep_enrolment": 61779
   },
   {
    "state": "Tamil Nadu",
@@ -256,7 +318,9 @@
    "total_enrolment": 12518167,
    "total_teachers": 549850,
    "foundational_share_pct": 23.0,
-   "foundational_enrolment": 2876916
+   "foundational_enrolment": 2876916,
+   "preparatory_enrolment": 2779913,
+   "foundational_prep_enrolment": 5656829
   },
   {
    "state": "Telangana",
@@ -264,7 +328,9 @@
    "total_enrolment": 7457851,
    "total_teachers": 357911,
    "foundational_share_pct": 24.7,
-   "foundational_enrolment": 1839949
+   "foundational_enrolment": 1839949,
+   "preparatory_enrolment": 1794412,
+   "foundational_prep_enrolment": 3634361
   },
   {
    "state": "Tripura",
@@ -272,7 +338,9 @@
    "total_enrolment": 690084,
    "total_teachers": 37733,
    "foundational_share_pct": 22.2,
-   "foundational_enrolment": 152957
+   "foundational_enrolment": 152957,
+   "preparatory_enrolment": 179298,
+   "foundational_prep_enrolment": 332255
   },
   {
    "state": "Uttar Pradesh",
@@ -280,7 +348,9 @@
    "total_enrolment": 42789347,
    "total_teachers": 1615427,
    "foundational_share_pct": 19.1,
-   "foundational_enrolment": 8175278
+   "foundational_enrolment": 8175278,
+   "preparatory_enrolment": 12594028,
+   "foundational_prep_enrolment": 20769306
   },
   {
    "state": "Uttarakhand",
@@ -288,7 +358,9 @@
    "total_enrolment": 2426815,
    "total_teachers": 134263,
    "foundational_share_pct": 23.3,
-   "foundational_enrolment": 566575
+   "foundational_enrolment": 566575,
+   "preparatory_enrolment": 595570,
+   "foundational_prep_enrolment": 1162145
   },
   {
    "state": "West Bengal",
@@ -296,7 +368,9 @@
    "total_enrolment": 17081511,
    "total_teachers": 583825,
    "foundational_share_pct": 22.1,
-   "foundational_enrolment": 3769548
+   "foundational_enrolment": 3769548,
+   "preparatory_enrolment": 4386910,
+   "foundational_prep_enrolment": 8156458
   }
  ]
 }

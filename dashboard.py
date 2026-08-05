@@ -866,7 +866,7 @@ with tab_story:
             f"**{indian(cur.teachers)} teachers** across every state and union "
             f"territory. That is the denominator the daily figure divides by.")
         ud = load_udise()
-        s1, s2, s3 = st.columns(3)
+        s1, s2, s3, s4 = st.columns(4)
         s1.metric("Children reached", indian(cur.students),
                   help=f"{int(cur.students):,} children on approved teaching and "
                        f"learning material lines")
@@ -875,21 +875,41 @@ with tab_story:
                        f"the handbook and capacity-building lines in each state, "
                        f"not their sum, because the same cohort is named on both")
         if ud:
+            # Two denominators, not one. NIPUN's own grade scope is Grades
+            # 1-5 (Foundational + Preparatory) in most years and narrows to
+            # Foundational-only (pre-primary to Grade 2) from 2025-26 -- see
+            # CLAUDE.md section 14 -- and many states' {_last} proposals
+            # explicitly cover Grades 3-5, which is Preparatory, not
+            # Foundational. Showing only the Foundational share would read
+            # as a coverage shortfall for states that were never trying to
+            # cover just that band.
             nat_f = ud["national"]["foundational_enrolment"]
+            nat_fp = ud["national"]["foundational_prep_enrolment"]
             udise_link = f"[UDISE+ {ud['year']} report]({ud['source_url']})"
-            s3.metric("Against all foundational enrolment",
+            s3.metric("Against enrolment, Grades PP-2",
                       f"{cur.students / nat_f * 100:,.0f}%",
-                      help=f"{nat_f:,} children were enrolled at the foundational "
-                           f"stage nationally in {ud['year']}. Source: {ud['source']}")
-            st.caption(f"That last figure is the closest outside check this page "
-                       f"can offer. The {udise_link} (Ministry of Education) "
-                       f"counted {nat_f:,} children at the foundational stage in "
-                       f"{ud['year']}, and {_last} approvals reach "
-                       f"{cur.students / nat_f * 100:,.0f} percent of that count. "
-                       f"The two are measured differently, so read it as a sense "
-                       f"check rather than a coverage rate.")
+                      help=f"{nat_f:,} children were enrolled at the "
+                           f"foundational stage (pre-primary to Grade 2) "
+                           f"nationally in {ud['year']}. Source: {ud['source']}")
+            s4.metric("Against enrolment, Grades PP-5",
+                      f"{cur.students / nat_fp * 100:,.0f}%",
+                      help=f"{nat_fp:,} children were enrolled across the "
+                           f"foundational and preparatory stages (pre-primary "
+                           f"to Grade 5) nationally in {ud['year']}. "
+                           f"Source: {ud['source']}")
+            st.caption(f"That last pair is the closest outside check this "
+                       f"page can offer. The {udise_link} (Ministry of "
+                       f"Education) counted {nat_f:,} children at the "
+                       f"foundational stage and {nat_fp:,} across foundational "
+                       f"and preparatory together in {ud['year']}, and {_last} "
+                       f"approvals reach {cur.students / nat_f * 100:,.0f} "
+                       f"percent of the first and {cur.students / nat_fp * 100:,.0f} "
+                       f"percent of the second. The two are measured "
+                       f"differently, so read either as a sense check rather "
+                       f"than a coverage rate.")
         else:
-            s3.metric("Against all foundational enrolment", "n/a")
+            s3.metric("Against enrolment, Grades PP-2", "n/a")
+            s4.metric("Against enrolment, Grades PP-5", "n/a")
 
     # -------------------------------------------------------- the climb
     with section("Six approval cycles", "navy"):
@@ -1031,22 +1051,74 @@ with tab_story:
     with section(f"{int(cur.states)} states, one mission", "emerald"):
         st.markdown("##### Small states pay more per child")
         sy_last = SY[SY.year == _last].copy()
-        sy_last["rpd"] = sy_last.lakh * 1e5 / sy_last.students / 365
         sy_last["cr"] = sy_last.lakh / 100
-        ranked = sy_last.dropna(subset=["rpd"]).sort_values("rpd")
+        # The printed "children covered" count (max approved_physical on TLM
+        # rows) is missing for several states -- their TLM line never named a
+        # physical count, or the state has no TLM line at all -- which left
+        # blank tiles and "not printed" rows on this specific map. UDISE+
+        # enrolment is published for every state and UT, so the per-child
+        # rate here is estimated against that instead. This is a deliberate
+        # departure from the fidelity-to-print standard the rest of the page
+        # holds to: it is a UDISE-deflated estimate, not a printed figure,
+        # and is labelled as such everywhere it appears.
+        #
+        # Two denominators, not one: NIPUN's own grade scope runs Grades 1-5
+        # (Foundational + Preparatory) in most years, and many {_last} state
+        # proposals explicitly cover Grades 3-5 -- Preparatory, not
+        # Foundational -- so a Foundational-only rate alone would overstate
+        # the cost per child for exactly those states. See CLAUDE.md
+        # section 14.
+        if ud:
+            udise_f_map = {r["state"]: r["foundational_enrolment"]
+                           for r in ud["states"]}
+            udise_fp_map = {r["state"]: r["foundational_prep_enrolment"]
+                            for r in ud["states"]}
+            sy_last["udise_f"] = sy_last["state"].map(udise_f_map)
+            sy_last["udise_fp"] = sy_last["state"].map(udise_fp_map)
+        else:
+            sy_last["udise_f"] = None
+            sy_last["udise_fp"] = None
+        sy_last["rpd_f"] = sy_last.lakh * 1e5 / sy_last["udise_f"] / 365
+        sy_last["rpd_fp"] = sy_last.lakh * 1e5 / sy_last["udise_fp"] / 365
+        ranked = sy_last.dropna(subset=["rpd_fp"]).sort_values("rpd_fp")
         if len(ranked):
             lo_s, hi_s = ranked.iloc[0], ranked.iloc[-1]
             st.markdown(
                 f"The same mission costs very different amounts per child "
-                f"depending on where the child lives. **{lo_s.state}** reaches "
-                f"{indian(lo_s.students)} children at **₹{lo_s.rpd:,.2f} a day**. "
-                f"**{hi_s.state}**, with {indian(hi_s.students)} children, spends "
-                f"**₹{hi_s.rpd:,.2f} a day**. Fixed costs such as project units "
-                f"and training infrastructure do not shrink with enrolment.")
+                f"depending on where the child lives, estimated against each "
+                f"state's UDISE+ {ud['year'] if ud else ''} enrolment. Against "
+                f"Foundational + Preparatory (Grades PP-5), **{lo_s.state}** "
+                f"spends **₹{lo_s.rpd_fp:,.2f} a day** per child and "
+                f"**{hi_s.state}** spends **₹{hi_s.rpd_fp:,.2f} a day**; "
+                f"against Foundational alone (Grades PP-2), the same two "
+                f"states are **₹{lo_s.rpd_f:,.2f}** and **₹{hi_s.rpd_f:,.2f}**. "
+                f"Fixed costs such as project units and training infrastructure "
+                f"do not shrink with enrolment.")
+            if ud:
+                st.caption(f"Denominators: {ud['year']} Foundational "
+                           f"(pre-primary to Grade 2) and Foundational + "
+                           f"Preparatory (pre-primary to Grade 5) enrolment "
+                           f"from the [UDISE+ {ud['year']} report]"
+                           f"({ud['source_url']}), not the printed "
+                           f"covered-child count above, so treat this map as "
+                           f"a sense check rather than an audited rate. Which "
+                           f"of the two fits a given state depends on the "
+                           f"grade span its own {_last} proposal named (see "
+                           f"the grade scope section on the National Picture "
+                           f"tab); showing both avoids assuming the narrower "
+                           f"one for states that asked for Grades 3-5 too.")
         map_metric = st.radio("Shade the map by",
-                              ["₹ per child per day", "Total ₹ crore"],
+                              ["₹ per child per day (Foundational + Preparatory)",
+                               "₹ per child per day (Foundational only)",
+                               "Total ₹ crore"],
                               horizontal=True, key="story_map_metric")
-        mcol_ = "rpd" if map_metric.startswith("₹ per") else "cr"
+        mcol_, mtitle_ = ({
+            "₹ per child per day (Foundational + Preparatory)":
+                ("rpd_fp", "₹ per child/day (PP-5)"),
+            "₹ per child per day (Foundational only)":
+                ("rpd_f", "₹ per child/day (PP-2)"),
+            "Total ₹ crore": ("cr", "Total ₹ crore"),
+        })[map_metric]
         tdf = pd.DataFrame([
             {"state": stt, "col": c, "row": r, "ab": ab,
              "value": (float(sy_last.loc[sy_last.state == stt, mcol_].iloc[0])
@@ -1073,7 +1145,7 @@ with tab_story:
             # ink fails on the darkest two steps, so the label flips there
             tdf["txt"] = ["light" if pd.notna(b) and int(b) >= nb - 2 else "dark"
                           for b in tdf["bin"]]
-            color_enc = alt.Color("band:N", title=map_metric, sort=names,
+            color_enc = alt.Color("band:N", title=mtitle_, sort=names,
                                   scale=alt.Scale(domain=names, range=ramp),
                                   legend=alt.Legend(orient="right", symbolType="square",
                                                     symbolSize=170))
@@ -1086,7 +1158,7 @@ with tab_story:
                     y=alt.Y("row:O", axis=None,
                             scale=alt.Scale(paddingInner=0.09)))
         _tip = [alt.Tooltip("state:N", title="State/UT"),
-                alt.Tooltip("value:Q", title=map_metric, format=",.2f")]
+                alt.Tooltip("value:Q", title=mtitle_, format=",.2f")]
         rects = (alt.Chart(tdf)
                  .mark_rect(cornerRadius=3, stroke=PAPER, strokeWidth=3)
                  .encode(color=color_enc, tooltip=_tip, **_pos))
@@ -1102,21 +1174,32 @@ with tab_story:
                                .properties(height=560, width=430)
                                .resolve_scale(color="independent")),
                         width="content")
-        st.caption(f"{_last} approvals by state and UT. A blank tile means the "
-                   f"figure is not available, usually because no covered-child "
-                   f"count was printed on that state's lines.")
+        st.caption(f"{_last} approvals by state and UT. A blank tile means no "
+                   f"PAB approval was found for that state in {_last}, or "
+                   f"(rarely) that state has no UDISE+ enrolment row.")
         with st.expander("Every state's figure"):
-            mtab = (sy_last[["state", "cr", "students", "rpd"]]
+            mtab = (sy_last[["state", "cr", "students", "udise_f", "udise_fp",
+                             "rpd_f", "rpd_fp"]]
                     .sort_values("cr", ascending=False)
-                    .rename(columns={"state": "State / UT",
-                                     "cr": "Approved (₹ crore)",
-                                     "students": "Children covered",
-                                     "rpd": "₹ per child per day"}))
-            mcols = ["Approved (₹ crore)", "Children covered",
-                     "₹ per child per day"]
+                    .rename(columns={
+                        "state": "State / UT",
+                        "cr": "Approved (₹ crore)",
+                        "students": "Children covered (printed)",
+                        "udise_f": "UDISE+ Foundational (PP-2)",
+                        "udise_fp": "UDISE+ Foundational+Prep (PP-5)",
+                        "rpd_f": "₹/child/day (vs PP-2)",
+                        "rpd_fp": "₹/child/day (vs PP-5)"}))
+            mcols = ["Approved (₹ crore)", "Children covered (printed)",
+                     "UDISE+ Foundational (PP-2)",
+                     "UDISE+ Foundational+Prep (PP-5)",
+                     "₹/child/day (vs PP-2)", "₹/child/day (vs PP-5)"]
             mdisp = as_text(mtab, ["Approved (₹ crore)"], ",.2f")
-            mdisp = as_text(mdisp, ["Children covered"], ",.0f", "not printed")
-            mdisp = as_text(mdisp, ["₹ per child per day"], ",.2f", "not printed")
+            mdisp = as_text(mdisp, ["Children covered (printed)"], ",.0f", "not printed")
+            mdisp = as_text(mdisp, ["UDISE+ Foundational (PP-2)",
+                                    "UDISE+ Foundational+Prep (PP-5)"],
+                            ",.0f", "not available")
+            mdisp = as_text(mdisp, ["₹/child/day (vs PP-2)", "₹/child/day (vs PP-5)"],
+                            ",.2f", "not available")
             st.dataframe(right_align(mdisp.style, mcols),
                          hide_index=True, width="stretch")
             table_csv(mtab, f"nipun_story_states_{_last}", "State figures (CSV)")
