@@ -1,0 +1,302 @@
+{
+ "source": "UDISE+ 2024-25 report (NEP Structure, Tables 2.1 & 5.1), Ministry of Education, Department of School Education & Literacy, Government of India",
+ "source_url": "https://dashboard.udiseplus.gov.in/report2026/static/media/UDISE+2024_25_Booklet_nep.ea09e672a163f92d9cfe.pdf",
+ "year": "2024-25",
+ "national": {
+  "total_schools": 1471473,
+  "total_enrolment": 246932680,
+  "total_teachers": 10122420,
+  "foundational_share_pct": 21.2,
+  "foundational_enrolment": 52312506
+ },
+ "states": [
+  {
+   "state": "Andaman & Nicobar Islands",
+   "total_schools": 408,
+   "total_enrolment": 71343,
+   "total_teachers": 6132,
+   "foundational_share_pct": 26.8,
+   "foundational_enrolment": 19101
+  },
+  {
+   "state": "Andhra Pradesh",
+   "total_schools": 61317,
+   "total_enrolment": 8454817,
+   "total_teachers": 342721,
+   "foundational_share_pct": 21.9,
+   "foundational_enrolment": 1854081
+  },
+  {
+   "state": "Arunachal Pradesh",
+   "total_schools": 3229,
+   "total_enrolment": 319826,
+   "total_teachers": 25117,
+   "foundational_share_pct": 29.7,
+   "foundational_enrolment": 95023
+  },
+  {
+   "state": "Assam",
+   "total_schools": 55283,
+   "total_enrolment": 7041824,
+   "total_teachers": 340471,
+   "foundational_share_pct": 24.8,
+   "foundational_enrolment": 1746919
+  },
+  {
+   "state": "Bihar",
+   "total_schools": 94339,
+   "total_enrolment": 21133228,
+   "total_teachers": 707516,
+   "foundational_share_pct": 17.4,
+   "foundational_enrolment": 3674380
+  },
+  {
+   "state": "Chandigarh",
+   "total_schools": 207,
+   "total_enrolment": 253012,
+   "total_teachers": 9968,
+   "foundational_share_pct": 21.7,
+   "foundational_enrolment": 54796
+  },
+  {
+   "state": "Chhattisgarh",
+   "total_schools": 56802,
+   "total_enrolment": 5806871,
+   "total_teachers": 285248,
+   "foundational_share_pct": 25.1,
+   "foundational_enrolment": 1457463
+  },
+  {
+   "state": "Dadra & Nagar Haveli and Daman & Diu",
+   "total_schools": 433,
+   "total_enrolment": 146825,
+   "total_teachers": 5288,
+   "foundational_share_pct": 25.7,
+   "foundational_enrolment": 37790
+  },
+  {
+   "state": "Delhi",
+   "total_schools": 5556,
+   "total_enrolment": 4491032,
+   "total_teachers": 161958,
+   "foundational_share_pct": 21.0,
+   "foundational_enrolment": 944411
+  },
+  {
+   "state": "Goa",
+   "total_schools": 1479,
+   "total_enrolment": 300546,
+   "total_teachers": 15196,
+   "foundational_share_pct": 24.7,
+   "foundational_enrolment": 74252
+  },
+  {
+   "state": "Gujarat",
+   "total_schools": 53355,
+   "total_enrolment": 11501328,
+   "total_teachers": 389063,
+   "foundational_share_pct": 20.1,
+   "foundational_enrolment": 2313861
+  },
+  {
+   "state": "Haryana",
+   "total_schools": 23494,
+   "total_enrolment": 5769330,
+   "total_teachers": 263942,
+   "foundational_share_pct": 21.2,
+   "foundational_enrolment": 1222342
+  },
+  {
+   "state": "Himachal Pradesh",
+   "total_schools": 17330,
+   "total_enrolment": 1425266,
+   "total_teachers": 102825,
+   "foundational_share_pct": 25.5,
+   "foundational_enrolment": 363286
+  },
+  {
+   "state": "Jammu & Kashmir",
+   "total_schools": 24192,
+   "total_enrolment": 2654012,
+   "total_teachers": 166717,
+   "foundational_share_pct": 32.8,
+   "foundational_enrolment": 871023
+  },
+  {
+   "state": "Jharkhand",
+   "total_schools": 44376,
+   "total_enrolment": 7436931,
+   "total_teachers": 209203,
+   "foundational_share_pct": 20.6,
+   "foundational_enrolment": 1531789
+  },
+  {
+   "state": "Karnataka",
+   "total_schools": 74859,
+   "total_enrolment": 11780251,
+   "total_teachers": 452602,
+   "foundational_share_pct": 18.4,
+   "foundational_enrolment": 2171065
+  },
+  {
+   "state": "Kerala",
+   "total_schools": 15757,
+   "total_enrolment": 6164059,
+   "total_teachers": 292072,
+   "foundational_share_pct": 23.9,
+   "foundational_enrolment": 1471957
+  },
+  {
+   "state": "Ladakh",
+   "total_schools": 961,
+   "total_enrolment": 57107,
+   "total_teachers": 6908,
+   "foundational_share_pct": 35.1,
+   "foundational_enrolment": 20072
+  },
+  {
+   "state": "Lakshadweep",
+   "total_schools": 36,
+   "total_enrolment": 12325,
+   "total_teachers": 751,
+   "foundational_share_pct": 27.7,
+   "foundational_enrolment": 3409
+  },
+  {
+   "state": "Madhya Pradesh",
+   "total_schools": 122120,
+   "total_enrolment": 15172607,
+   "total_teachers": 717493,
+   "foundational_share_pct": 24.2,
+   "foundational_enrolment": 3675094
+  },
+  {
+   "state": "Maharashtra",
+   "total_schools": 108250,
+   "total_enrolment": 21272611,
+   "total_teachers": 747501,
+   "foundational_share_pct": 18.0,
+   "foundational_enrolment": 3824091
+  },
+  {
+   "state": "Manipur",
+   "total_schools": 4666,
+   "total_enrolment": 673118,
+   "total_teachers": 41490,
+   "foundational_share_pct": 30.7,
+   "foundational_enrolment": 206674
+  },
+  {
+   "state": "Meghalaya",
+   "total_schools": 14587,
+   "total_enrolment": 1061320,
+   "total_teachers": 57002,
+   "foundational_share_pct": 38.0,
+   "foundational_enrolment": 402845
+  },
+  {
+   "state": "Mizoram",
+   "total_schools": 3974,
+   "total_enrolment": 279882,
+   "total_teachers": 24952,
+   "foundational_share_pct": 33.5,
+   "foundational_enrolment": 93898
+  },
+  {
+   "state": "Nagaland",
+   "total_schools": 2750,
+   "total_enrolment": 414421,
+   "total_teachers": 33131,
+   "foundational_share_pct": 34.8,
+   "foundational_enrolment": 144398
+  },
+  {
+   "state": "Odisha",
+   "total_schools": 61565,
+   "total_enrolment": 7644052,
+   "total_teachers": 344116,
+   "foundational_share_pct": 17.5,
+   "foundational_enrolment": 1339910
+  },
+  {
+   "state": "Puducherry",
+   "total_schools": 763,
+   "total_enrolment": 240691,
+   "total_teachers": 13639,
+   "foundational_share_pct": 25.1,
+   "foundational_enrolment": 60342
+  },
+  {
+   "state": "Punjab",
+   "total_schools": 27281,
+   "total_enrolment": 5908507,
+   "total_teachers": 273130,
+   "foundational_share_pct": 30.0,
+   "foundational_enrolment": 1772284
+  },
+  {
+   "state": "Rajasthan",
+   "total_schools": 106302,
+   "total_enrolment": 16364187,
+   "total_teachers": 792265,
+   "foundational_share_pct": 21.1,
+   "foundational_enrolment": 3447888
+  },
+  {
+   "state": "Sikkim",
+   "total_schools": 1245,
+   "total_enrolment": 117576,
+   "total_teachers": 14994,
+   "foundational_share_pct": 31.3,
+   "foundational_enrolment": 36839
+  },
+  {
+   "state": "Tamil Nadu",
+   "total_schools": 57935,
+   "total_enrolment": 12518167,
+   "total_teachers": 549850,
+   "foundational_share_pct": 23.0,
+   "foundational_enrolment": 2876916
+  },
+  {
+   "state": "Telangana",
+   "total_schools": 43154,
+   "total_enrolment": 7457851,
+   "total_teachers": 357911,
+   "foundational_share_pct": 24.7,
+   "foundational_enrolment": 1839949
+  },
+  {
+   "state": "Tripura",
+   "total_schools": 4943,
+   "total_enrolment": 690084,
+   "total_teachers": 37733,
+   "foundational_share_pct": 22.2,
+   "foundational_enrolment": 152957
+  },
+  {
+   "state": "Uttar Pradesh",
+   "total_schools": 262358,
+   "total_enrolment": 42789347,
+   "total_teachers": 1615427,
+   "foundational_share_pct": 19.1,
+   "foundational_enrolment": 8175278
+  },
+  {
+   "state": "Uttarakhand",
+   "total_schools": 22452,
+   "total_enrolment": 2426815,
+   "total_teachers": 134263,
+   "foundational_share_pct": 23.3,
+   "foundational_enrolment": 566575
+  },
+  {
+   "state": "West Bengal",
+   "total_schools": 93715,
+   "total_enrolment": 17081511,
+   "total_teachers": 583825,
+   "foundational_share_pct": 22.1,
+   "foundational_enrolment": 3769548
+  }
+ ]
+}

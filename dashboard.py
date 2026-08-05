@@ -761,7 +761,7 @@ def load_udise():
     try:
         import json
         return json.loads(
-            Path("udise_2023_24_state_enrollment.json").read_text(
+            Path("udise_2024_25_state_enrollment.json").read_text(
                 encoding="utf-8"))
     except Exception:
         return None
@@ -876,17 +876,18 @@ with tab_story:
                        f"not their sum, because the same cohort is named on both")
         if ud:
             nat_f = ud["national"]["foundational_enrolment"]
+            udise_link = f"[UDISE+ {ud['year']} report]({ud['source_url']})"
             s3.metric("Against all foundational enrolment",
                       f"{cur.students / nat_f * 100:,.0f}%",
                       help=f"{nat_f:,} children were enrolled at the foundational "
-                           f"stage nationally in {ud['year']}")
+                           f"stage nationally in {ud['year']}. Source: {ud['source']}")
             st.caption(f"That last figure is the closest outside check this page "
-                       f"can offer. {ud['source']} counted {nat_f:,} children at "
-                       f"the foundational stage in {ud['year']}, and {_last} "
-                       f"approvals reach {cur.students / nat_f * 100:,.0f} "
-                       f"percent of that count. The two are measured "
-                       f"differently, so read it as a sense check rather than a "
-                       f"coverage rate.")
+                       f"can offer. The {udise_link} (Ministry of Education) "
+                       f"counted {nat_f:,} children at the foundational stage in "
+                       f"{ud['year']}, and {_last} approvals reach "
+                       f"{cur.students / nat_f * 100:,.0f} percent of that count. "
+                       f"The two are measured differently, so read it as a sense "
+                       f"check rather than a coverage rate.")
         else:
             s3.metric("Against all foundational enrolment", "n/a")
 
@@ -1365,7 +1366,7 @@ with tab_nat:
                     "nipun_approvals_by_activity_head", "Activity mix (CSV)")
 
     # ------------------------------------------------ grade scope parity
-    with section("Which grades the money names", "gold"):
+    with section("Which grades the budget names", "gold"):
         SC = A[A.category_base != LEAK_CAT]
         scope_year = (SC.groupby(["year", "scope"]).approved_financial_lakh.sum()
                       .reset_index())
