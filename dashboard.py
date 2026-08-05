@@ -1455,7 +1455,7 @@ with tab_nat:
                     "nipun_approvals_by_activity_head", "Activity mix (CSV)")
 
     # ------------------------------------------------ grade scope parity
-    with section("Which grades the budget names", "gold"):
+    with section("Which grades the money names", "gold"):
         SC = A[A.category_base != LEAK_CAT]
         scope_year = (SC.groupby(["year", "scope"]).approved_financial_lakh.sum()
                       .reset_index())
@@ -1750,6 +1750,16 @@ with tab_exp:
                 st.markdown(f"##### {doc.doc_label.iloc[0]} · {q}"
                             + (f" · {chk}" if chk else ""))
                 url = lg.get("source_url")
+                # The per-row "Source" column reuses this same URL, except for
+                # a RECOVERED_SOURCES doc: there, url is the *current* portal
+                # file (a low-res re-upload), not what the row was actually
+                # read from (an archived copy with no direct portal link), so
+                # linking it on every row would misattribute the source. The
+                # caption below already carries the nuance; the table column
+                # is deliberately blank in that one case rather than wrong.
+                row_source_url = (url if (pd.notna(url) and url
+                                          and src not in RECOVERED_SOURCES)
+                                  else None)
                 if src in RECOVERED_SOURCES:
                     note = ("read from an archived copy of the original upload, "
                             "because the file now on the portal was re-uploaded at "
@@ -1769,6 +1779,7 @@ with tab_exp:
                             & doc[numcols].isna().all(axis=1))]
                 table = pd.DataFrame({
                     "Code": doc.code.fillna(""),
+                    "Page": doc.pdf_page,
                     "Particulars / Activity Master": doc.activity,
                     "Grades named": doc.scope,
                     "Proposal · Physical": doc.proposed_physical,
@@ -1778,15 +1789,23 @@ with tab_exp:
                     "Approved · Unit Cost": doc.approved_unit_cost,
                     "Approved · Financial": doc.approved_financial_lakh,
                     "Remarks": doc.remarks.fillna(""),
+                    "Source": row_source_url,
                 }).reset_index(drop=True)
                 is_total = (doc.row_type == "total").tolist()
+                # Page has to be pre-rendered to text for the same reason as
+                # as_text()'s own docstring: a Styler's na_rep does not
+                # survive st.dataframe, so a page-less row would otherwise
+                # paint as a literal "None" rather than reading as blank.
+                table = as_text(table, ["Page"], ".0f", blank="")
                 fmt = {"Proposal · Physical": "{:,.0f}", "Approved · Physical": "{:,.0f}",
                        "Proposal · Unit Cost": "{:.5f}", "Approved · Unit Cost": "{:.5f}",
                        "Proposal · Financial": "{:,.2f}", "Approved · Financial": "{:,.2f}"}
                 sty = (table.style.format(fmt, na_rep="")
                        .apply(lambda r: [f"font-weight:700; background-color:{CHALK}"
                                          if is_total[r.name] else "" for _ in r], axis=1))
-                st.dataframe(sty, hide_index=True, width="stretch")
+                st.dataframe(sty, hide_index=True, width="stretch",
+                            column_config={"Source": st.column_config.LinkColumn(
+                                "Source", display_text="open")})
                 table_csv(table, src[:-4] if src.endswith(".pdf") else src,
                           "This annexure (CSV)")
 
