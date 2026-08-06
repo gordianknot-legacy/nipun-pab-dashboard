@@ -952,6 +952,30 @@ with tab_story:
         else:
             t2.metric("UDISE teachers, 2024-25 (Govt+Aided)", "n/a")
 
+        with st.expander("Teachers by state (as per PAB)"):
+            _av_last = ACT_MIN[ACT_MIN.a_valid & (ACT_MIN.year == _last)]
+            _cb = (_av_last[_av_last.category_base == "Teacher Capacity Building"]
+                  .groupby("state").approved_physical.sum())
+            _trm = (_av_last[_av_last.category_base == "Teacher Resource / Handbook"]
+                   .groupby("state").approved_physical.sum())
+            tteach = pd.DataFrame({"State / UT": sorted(set(_cb.index) | set(_trm.index))})
+            tteach["Capacity Building teachers"] = tteach["State / UT"].map(_cb)
+            tteach["TRM teachers"] = tteach["State / UT"].map(_trm)
+            tteach = tteach.sort_values("Capacity Building teachers",
+                                        ascending=False, na_position="last")
+            st.caption("approved_physical on Capacity Building and TRM rows, kept "
+                       "as two separate columns -- these are two different budget "
+                       "lines with their own asks, not one teacher-count metric. "
+                       "The 'Teachers reached' figure above takes the larger of the "
+                       "two per state instead, to avoid double-counting a cohort "
+                       "often named on both.")
+            tdisp = as_text(tteach, ["Capacity Building teachers", "TRM teachers"],
+                            ",.0f", "no ask")
+            st.dataframe(right_align(tdisp.style, ["Capacity Building teachers", "TRM teachers"]),
+                        hide_index=True, width="stretch")
+            table_csv(tteach, f"nipun_story_teachers_by_state_{_last}",
+                     "Teachers by state (CSV)")
+
     # -------------------------------------------------------- the climb
     with section("Six approval cycles", "navy"):
         st.markdown("##### The budget doubled in six years")
