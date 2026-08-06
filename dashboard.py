@@ -887,14 +887,10 @@ with tab_story:
             f"territory. That is the denominator the daily figure divides by.")
         _udise_path = Path("udise_2024_25_state_enrollment.json")
         ud = load_udise(_os.path.getmtime(_udise_path)) if _udise_path.exists() else None
-        s1, s2, s3, s4 = st.columns(4)
+        s1, s3, s4 = st.columns(3)
         s1.metric("Children reached", indian(cur.students),
                   help=f"{int(cur.students):,} children on approved teaching and "
                        f"learning material lines")
-        s2.metric("Teachers reached", indian(cur.teachers),
-                  help=f"{int(cur.teachers):,} teachers. Counted as the larger of "
-                       f"the handbook and capacity-building lines in each state, "
-                       f"not their sum, because the same cohort is named on both")
         if ud and "foundational_prep_enrolment" in ud.get("national", {}):
             # Two denominators, not one. NIPUN's own grade scope is Grades
             # 1-5 (Foundational + Preparatory) in most years and narrows to
@@ -936,50 +932,25 @@ with tab_story:
         udt = (load_udise_teachers(_os.path.getmtime(_udise_t_path))
                if _udise_t_path.exists() else None)
         t1, t2 = st.columns(2)
+        t1.metric("Teachers reached (as per PAB)", indian(cur.teachers),
+                  help=f"{int(cur.teachers):,} teachers. Counted as the larger of "
+                       f"the handbook and capacity-building lines in each state, "
+                       f"not their sum, because the same cohort is named on both")
         if udt and "foundational_prep_teachers_govt_aided" in udt.get("national", {}):
             # Government + Government Aided, not All-Management: Samagra
             # Shiksha/NIPUN funding never reaches Private Unaided schools,
             # and All-Management overstates the relevant national teacher
             # population by 526,619 (28.6% of the Government+Aided figure)
-            # by including schools NIPUN could never reach. UDISE's Table
-            # 4.3/4.4 don't split Foundational from Preparatory the way its
-            # enrolment table does, so there's one precisely-scoped
-            # denominator here (pre-primary to Grade 5), not two -- paired
-            # instead with the crude all-levels, all-management total for a
-            # sense of how big a slice of the whole teaching workforce this
-            # is.
+            # by including schools NIPUN could never reach.
             nat_ft = udt["national"]["foundational_prep_teachers_govt_aided"]
-            nat_tt = udt["national"]["total_teachers"]
-            udt_link = f"[UDISE+ {udt['year']} report]({udt['source_url']})"
-            t1.metric("Against UDISE teachers, Govt+Aided, Grades PP-5",
-                      f"{cur.teachers / nat_ft * 100:,.0f}%",
-                      help=f"{nat_ft:,} teachers taught at Government and "
-                           f"Government Aided schools, foundational and "
-                           f"preparatory stages (pre-primary to Grade 5), "
-                           f"nationally in {udt['year']}. One grade wider "
-                           f"than the 'Grades I to V' most lines target. "
-                           f"Source: {udt['source']}")
-            t2.metric("Against all teachers, every level & management",
-                      f"{cur.teachers / nat_tt * 100:,.0f}%",
-                      help=f"{nat_tt:,} teachers nationally across every "
-                           f"level and school management (including "
-                           f"Private Unaided) in {udt['year']} -- a much "
-                           f"wider denominator than the row above, shown "
-                           f"for scale, not as a coverage rate. "
-                           f"Source: {udt['source']}")
-            st.caption(f"Same sense-check as above, teacher side. The "
-                       f"{udt_link} counted {nat_ft:,} teachers at "
-                       f"Government and Government Aided schools' "
-                       f"foundational-and-preparatory band and {nat_tt:,} "
-                       f"across every level and management nationally in "
-                       f"{udt['year']}, and {_last} approvals reach "
-                       f"{cur.teachers / nat_ft * 100:,.0f} percent of the "
-                       f"first and {cur.teachers / nat_tt * 100:,.0f} percent "
-                       f"of the second. Read as a sense check, not a "
-                       f"coverage rate.")
+            t2.metric("UDISE teachers, 2024-25 (Govt+Aided)", indian(nat_ft),
+                      help=f"{nat_ft:,} teachers at Government and Government "
+                           f"Aided schools, foundational and preparatory stages "
+                           f"(pre-primary to Grade 5), nationally in "
+                           f"{udt['year']}. One grade wider than the 'Grades I "
+                           f"to V' most lines target. Source: {udt['source']}")
         else:
-            t1.metric("Against UDISE teachers, Govt+Aided, Grades PP-5", "n/a")
-            t2.metric("Against all teachers, every level & management", "n/a")
+            t2.metric("UDISE teachers, 2024-25 (Govt+Aided)", "n/a")
 
     # -------------------------------------------------------- the climb
     with section("Six approval cycles", "navy"):
