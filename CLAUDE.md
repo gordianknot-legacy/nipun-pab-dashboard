@@ -890,7 +890,112 @@ download tagged `minutes (alt)`, so `ACT_MIN` correctly drops it.
 
 ---
 
-## 15. Commit conventions
+## 15. The Elementary Head gap — a whole sub-component missing in 2025-26
+
+A second, genuinely separate Grade 3-5 FLN sub-component exists in some
+2025-26 documents, printed **after** the FLN-FS block the extractor
+already anchors on. Its own heading never contains the words
+"Foundational Literacy and Numeracy" — it is printed as `5.9 -
+Elementary Head`, `5.10 - Elementary Head`, or (Bihar) not named at all,
+just sitting as one activity row inside an unrelated component — so the
+anchor-text scan that locates "Total of Foundational Literacy and
+Numeracy -FS" stops there and never walks forward into the next block.
+The document closes cleanly against its own FLN-FS subtotal, which is
+exactly what made this invisible to every prior reconciliation pass: the
+chain-closure check in section 7 only proves the captured rows sum to the
+anchor they were captured against, not that the anchor itself is the
+whole story.
+
+**The reliable signature is a standalone printed `Total of Elementary
+Head` line** — separate from, and in addition to, `Total of Foundational
+Literacy and Numeracy -FS`. Confirmed present in 17 states/UTs for
+2025-26:
+
+| Round | States | Why a separate round |
+|---|---|---|
+| 1 | Andaman & Nicobar Islands, Andhra Pradesh, Arunachal Pradesh, Bihar, Chandigarh, Delhi, Haryana, Jammu & Kashmir, Karnataka, Kerala, Meghalaya, Odisha, Rajasthan, Tripura, Uttar Pradesh | Found by a scripted scan (`ACT_RE` + `G35_RE` co-occurrence, then a check that the printed component number/C-code is not already among the state-year's captured codes) over every 2025-26 primary document |
+| 2 | Assam, Punjab | The scripted scan reads the text layer, and both documents are pure image scans from the relevant page onward — "0 hits" on the scan is not proof of absence (the same lesson as section 11's `no-nipun-found` warning, recurring one schema layer up). Found only by individually vision-reading every state the scan had called clean |
+
+Bihar's is the odd one out: no `Total of X` line at all, just one
+NIPUN-scoped TLM row (Rs 33,237.065 lakh, 66.47 lakh students @ Rs 500)
+sitting as item 8 inside `5.4.2 - Innovation Projects (Elementary)`, a
+component that is otherwise non-NIPUN content this workbook correctly
+never captures. The row's own printed figure is its own reconciliation
+unit; there was no subtotal to anchor a `LOG` update on.
+
+**Combined impact: Rs 825.62 Cr added to the published 2025-26 national
+total** (16 states with their own `Total of Elementary Head` line summing
+to Rs 493.24 Cr, plus Bihar's Rs 332.37 Cr row) — applied as staging
+modules named `<STATE>_EH.py` (suffixed to avoid colliding with an
+existing unrelated per-state module of the same two-letter name — `AR.py`,
+`DL.py`, `TR.py`, `AS.py`, `PB.py` all already existed), each carrying a
+`LOG` override so the printed anchor becomes the FS-plus-Elementary-Head
+combined figure, since the FS subtotal alone excludes it.
+
+Two unrelated existing-row defects were found and fixed incidentally
+while individually vision-reading round 2's "clean" states — proof that
+a state confirmed to have no Elementary Head gap is still worth reading
+in full, not just scanned for the one pattern being hunted:
+
+- **Mizoram** — the classic mode-6 defect from section 5 (proposed value
+  copied into the approved column). The FLN-FS total's approved figure
+  carried the Modified proposal (1320.8955) instead of the printed
+  Recommended by DoSEL figure (1315.0755); the row's own captured
+  activity figures summed correctly to 1315.0755, confirming which value
+  was right.
+- **West Bengal** — a pure parsing bug, not a source or capture problem.
+  The FLN-FS total row's `proposed_financial_lakh`/`approved_financial_lakh`
+  were stored as 8.0/0.0 while the row's own `remarks` text already held
+  the correct raw figures (10696.99958/10636.998); only the parsed fields
+  were wrong. Applied to both the primary `minutes.pdf` and its identical
+  alt-copy for Log consistency, though only the primary feeds `ACT_MIN`.
+
+### 2026-27 does not have this gap
+Checked directly rather than assumed from the year's known wide
+(Grades 1-5, single combined FS block) schema, because "the schema is
+different" is exactly the kind of claim section 11 warns against trusting
+without opening files:
+
+1. Every one of the 36 primary 2026-27 documents carries a real, sizeable
+   text layer (80,000+ characters), ruling out the pure-scan blind spot
+   that caused round 2's misses.
+2. Zero occurrences of a standalone `Total of Elementary Head` line across
+   all 36 documents' own current-year annexures.
+
+**A false lead worth recording so it isn't re-chased.** Every 2026-27
+document embeds a second, unrelated table headed "Sub Component wise
+Approval / Expenditure till Date (F.Y. 2025-2026)" — a Prabandh-generated
+retrospective summary of the *prior* year, and 11 states show a nonzero
+"Elementary Head" line inside it. This looks exactly like a lead on more
+missed 2025-26 gaps, and none of it is: every one of those 11 figures
+(Maharashtra Rs 109.88 Cr, Chhattisgarh, Himachal Pradesh, Lakshadweep,
+Madhya Pradesh, Nagaland, Puducherry, Tamil Nadu, Uttarakhand, and Dadra &
+Nagar Haveli and Daman & Diu) was already fully captured — the portal
+tags whichever row is Grade-3-5 TLM/CB content as "Elementary Head" for
+this summary regardless of whether that row sits inside the state's
+already-captured FLN-FS subtotal (all 11 of these) or as the genuinely
+separate component the 17 real gaps above have. Confirmed to the rupee in
+several cases, e.g. Dadra & Nagar Haveli and Daman & Diu's summary figure
+of Rs 112.08 lakh is exactly its two already-captured "TLM ... Class III
+to V" rows (Rs 3.5 + Rs 108.58 lakh) added together by the portal, not a
+third, missing one. **The only trustworthy signal for this gap, in any
+year, is a standalone printed `Total of Elementary Head` subtotal line —
+not the phrase alone, and not this retrospective table's per-state
+figure.**
+
+### Document revisions supersede only the sections they amend
+Settled as a standing rule after a state (Uttar Pradesh, 2025-26) turned
+out to have a ministry-issued revised budget PDF alongside its original:
+a revision replaces the original's figures **only for the specific
+sections it actually amends**, not the whole document. Checked directly
+for UP's sub-components 5.9/5.10 (byte-identical text between the
+original and the revision, so nothing to change there); do not assume a
+revision is wholesale, and do not assume it changes nothing either — read
+the sections in question in both copies.
+
+---
+
+## 16. Commit conventions
 
 No AI attribution or co-author trailers in commits or PR bodies. Commit
 messages explain *why* a value changed and cite the printed figures.
