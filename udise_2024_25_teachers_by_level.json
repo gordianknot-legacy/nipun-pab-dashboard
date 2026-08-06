@@ -1,0 +1,266 @@
+{
+ "source": "UDISE+ 2024-25 report (NEP Structure, Table 4.1), Ministry of Education, Department of School Education & Literacy, Government of India",
+ "source_url": "https://dashboard.udiseplus.gov.in/report2026/static/media/UDISE+2024_25_Booklet_nep.ea09e672a163f92d9cfe.pdf",
+ "year": "2024-25",
+ "scope_note": "foundational_prep_teachers covers pre-primary to Grade 5 -- one grade band wider than the 'Grades I to V' scope most PAB Capacity Building lines target. Recorded as printed; not adjusted to force an exact match.",
+ "national": {
+  "total_teachers": 10122420,
+  "foundational_prep_teachers": 2368195,
+  "middle_teachers": 2892682,
+  "secondary_teachers": 4861543
+ },
+ "states": [
+  {
+   "state": "Andaman & Nicobar Islands",
+   "total_teachers": 6132,
+   "foundational_prep_teachers": 1041,
+   "middle_teachers": 1123,
+   "secondary_teachers": 3968
+  },
+  {
+   "state": "Andhra Pradesh",
+   "total_teachers": 342721,
+   "foundational_prep_teachers": 97303,
+   "middle_teachers": 45572,
+   "secondary_teachers": 199846
+  },
+  {
+   "state": "Arunachal Pradesh",
+   "total_teachers": 25117,
+   "foundational_prep_teachers": 4616,
+   "middle_teachers": 10744,
+   "secondary_teachers": 9757
+  },
+  {
+   "state": "Assam",
+   "total_teachers": 340471,
+   "foundational_prep_teachers": 105302,
+   "middle_teachers": 67319,
+   "secondary_teachers": 167850
+  },
+  {
+   "state": "Bihar",
+   "total_teachers": 707516,
+   "foundational_prep_teachers": 151976,
+   "middle_teachers": 387689,
+   "secondary_teachers": 167851
+  },
+  {
+   "state": "Chandigarh",
+   "total_teachers": 9968,
+   "foundational_prep_teachers": 194,
+   "middle_teachers": 511,
+   "secondary_teachers": 9263
+  },
+  {
+   "state": "Chhattisgarh",
+   "total_teachers": 285248,
+   "foundational_prep_teachers": 85129,
+   "middle_teachers": 88011,
+   "secondary_teachers": 112108
+  },
+  {
+   "state": "Dadra & Nagar Haveli and Daman & Diu",
+   "total_teachers": 5288,
+   "foundational_prep_teachers": 760,
+   "middle_teachers": 1799,
+   "secondary_teachers": 2729
+  },
+  {
+   "state": "Delhi",
+   "total_teachers": 161958,
+   "foundational_prep_teachers": 26560,
+   "middle_teachers": 11564,
+   "secondary_teachers": 123834
+  },
+  {
+   "state": "Goa",
+   "total_teachers": 15196,
+   "foundational_prep_teachers": 3307,
+   "middle_teachers": 638,
+   "secondary_teachers": 11251
+  },
+  {
+   "state": "Gujarat",
+   "total_teachers": 389063,
+   "foundational_prep_teachers": 32890,
+   "middle_teachers": 214272,
+   "secondary_teachers": 141901
+  },
+  {
+   "state": "Haryana",
+   "total_teachers": 263942,
+   "foundational_prep_teachers": 39580,
+   "middle_teachers": 35730,
+   "secondary_teachers": 188632
+  },
+  {
+   "state": "Himachal Pradesh",
+   "total_teachers": 102825,
+   "foundational_prep_teachers": 21718,
+   "middle_teachers": 10956,
+   "secondary_teachers": 70151
+  },
+  {
+   "state": "Jammu & Kashmir",
+   "total_teachers": 166717,
+   "foundational_prep_teachers": 29133,
+   "middle_teachers": 60097,
+   "secondary_teachers": 77487
+  },
+  {
+   "state": "Jharkhand",
+   "total_teachers": 209203,
+   "foundational_prep_teachers": 45241,
+   "middle_teachers": 83848,
+   "secondary_teachers": 80114
+  },
+  {
+   "state": "Karnataka",
+   "total_teachers": 452602,
+   "foundational_prep_teachers": 46096,
+   "middle_teachers": 150565,
+   "secondary_teachers": 255941
+  },
+  {
+   "state": "Kerala",
+   "total_teachers": 292072,
+   "foundational_prep_teachers": 46175,
+   "middle_teachers": 60122,
+   "secondary_teachers": 185775
+  },
+  {
+   "state": "Ladakh",
+   "total_teachers": 6908,
+   "foundational_prep_teachers": 1025,
+   "middle_teachers": 2982,
+   "secondary_teachers": 2901
+  },
+  {
+   "state": "Lakshadweep",
+   "total_teachers": 751,
+   "foundational_prep_teachers": 174,
+   "middle_teachers": 213,
+   "secondary_teachers": 364
+  },
+  {
+   "state": "Madhya Pradesh",
+   "total_teachers": 717493,
+   "foundational_prep_teachers": 137087,
+   "middle_teachers": 266003,
+   "secondary_teachers": 314403
+  },
+  {
+   "state": "Maharashtra",
+   "total_teachers": 747501,
+   "foundational_prep_teachers": 138219,
+   "middle_teachers": 200144,
+   "secondary_teachers": 409138
+  },
+  {
+   "state": "Manipur",
+   "total_teachers": 41490,
+   "foundational_prep_teachers": 8709,
+   "middle_teachers": 7861,
+   "secondary_teachers": 24920
+  },
+  {
+   "state": "Meghalaya",
+   "total_teachers": 57002,
+   "foundational_prep_teachers": 23873,
+   "middle_teachers": 15143,
+   "secondary_teachers": 17986
+  },
+  {
+   "state": "Mizoram",
+   "total_teachers": 24952,
+   "foundational_prep_teachers": 6351,
+   "middle_teachers": 11224,
+   "secondary_teachers": 7377
+  },
+  {
+   "state": "Nagaland",
+   "total_teachers": 33131,
+   "foundational_prep_teachers": 6942,
+   "middle_teachers": 8430,
+   "secondary_teachers": 17759
+  },
+  {
+   "state": "Odisha",
+   "total_teachers": 344116,
+   "foundational_prep_teachers": 72054,
+   "middle_teachers": 129522,
+   "secondary_teachers": 142540
+  },
+  {
+   "state": "Puducherry",
+   "total_teachers": 13639,
+   "foundational_prep_teachers": 2032,
+   "middle_teachers": 817,
+   "secondary_teachers": 10790
+  },
+  {
+   "state": "Punjab",
+   "total_teachers": 273130,
+   "foundational_prep_teachers": 53373,
+   "middle_teachers": 26603,
+   "secondary_teachers": 193154
+  },
+  {
+   "state": "Rajasthan",
+   "total_teachers": 792265,
+   "foundational_prep_teachers": 83352,
+   "middle_teachers": 227978,
+   "secondary_teachers": 480935
+  },
+  {
+   "state": "Sikkim",
+   "total_teachers": 14994,
+   "foundational_prep_teachers": 3438,
+   "middle_teachers": 3745,
+   "secondary_teachers": 7811
+  },
+  {
+   "state": "Tamil Nadu",
+   "total_teachers": 549850,
+   "foundational_prep_teachers": 117222,
+   "middle_teachers": 68171,
+   "secondary_teachers": 364457
+  },
+  {
+   "state": "Telangana",
+   "total_teachers": 357911,
+   "foundational_prep_teachers": 50587,
+   "middle_teachers": 57847,
+   "secondary_teachers": 249477
+  },
+  {
+   "state": "Tripura",
+   "total_teachers": 37733,
+   "foundational_prep_teachers": 7492,
+   "middle_teachers": 7640,
+   "secondary_teachers": 22601
+  },
+  {
+   "state": "Uttar Pradesh",
+   "total_teachers": 1615427,
+   "foundational_prep_teachers": 581174,
+   "middle_teachers": 554824,
+   "secondary_teachers": 479429
+  },
+  {
+   "state": "Uttarakhand",
+   "total_teachers": 134263,
+   "foundational_prep_teachers": 30873,
+   "middle_teachers": 34334,
+   "secondary_teachers": 69056
+  },
+  {
+   "state": "West Bengal",
+   "total_teachers": 583825,
+   "foundational_prep_teachers": 307197,
+   "middle_teachers": 38641,
+   "secondary_teachers": 237987
+  }
+ ]
+}
