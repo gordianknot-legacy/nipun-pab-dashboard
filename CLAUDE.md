@@ -1147,6 +1147,27 @@ FLN money a year later, and the portal reports net of it.** This workbook
 publishes what the PAB approved as printed, so the minutes' figure stands
 and the Log now carries the explanation so it is not re-chased.
 
+### "Use the most recent document" would lose data, not gain it
+
+Checked directly, because it is a reasonable thing to assume and it is
+wrong here. For the 2025-26 state-years where more than one document
+carries rows, the later companion (addendum / supplementary) is almost
+always a **partial re-issue**, not a supersession: Bihar's minutes carry
+58,622.12 lakh against its addendum's 25,385.06, Odisha's 39,071.64
+against a supplementary's 6,584.63, Chandigarh's 554.25 against 296.64.
+Switching the selection rule to "latest document wins" would silently
+drop those rows.
+
+And it would buy nothing. Across both current years, **no ECCE line
+differs between two documents of the same state-year, and no companion
+document carries an ECCE line the chosen document lacks** (0 and 0 on a
+full sweep). Where documents overlap they agree on figures; what they
+differ on is remark wording (§16, Sikkim and Manipur). So the existing
+`primary_doc_mask` / `ACT_MIN` rule — take the minutes where it has rows,
+else the companion — is already selecting the fullest document, and the
+standing §15 rule (a revision supersedes only the sections it amends)
+remains the right model.
+
 ### Chandigarh, deliberately left as it is
 
 Chandigarh's published total includes `18-Role play (class 3 to 5)`
