@@ -1021,22 +1021,38 @@ be diffed separately; it produced 9 numeric and 29 substantive remark
 differences that the first pass never saw. Key on `row_uid`, never on row
 position.
 
-**Their copy was right about column errors and wrong about print
-fidelity.** It correctly caught that several states' proposed side had
-been read off the wrong column (below), which we had missed. But it also
-*silently reconciled* three source-internal inconsistencies, which is
-exactly what §9 says not to do:
+**Their copy was right about column errors.** It correctly caught that
+several states' proposed side had been read off the wrong column (below),
+which we had missed. Its remaining differences are transcription slips —
+paraphrasing ("Grade 2" where the page prints "Grade II"), dropping a
+clause Puducherry does print ("of Grades I to II"), dropping trailing
+full stops, truncating a leading "R" ("ecommended").
 
-| Row | Their copy | What the page prints |
-|---|---|---|
-| Sikkim `#1` | "Rs. 573.00 lakhs" | **"Rs. 916.8 lakhs"** (raw p34) |
-| Manipur `#14` | "Rs.25 lakh" | **"Rs.50 lakh"** (raw p47) |
-| Manipur `#12` | "Recommended 50% due to change in Total outlay…" | **"Recommended as proposed"** |
+### The mistake I made grading it, which is the real lesson
 
-None of their three replacement strings occurs anywhere in the respective
-document. They also paraphrase ("Grade 2" where the page prints "Grade
-II"), drop a clause Puducherry does print ("of Grades I to II"), drop
-trailing full stops, and truncate a leading "R" ("ecommended").
+Three of their rows — Sikkim `#1` ("Rs. 573.00 lakhs" against the
+minutes' "Rs. 916.8 lakhs"), Manipur `#14` ("Rs. 25 lakh" against "Rs.50
+lakh") and Manipur `#12` ("Recommended 50% due to change in Total
+outlay…" against "Recommended as proposed") — were written up as
+fabrications, on the evidence that the strings appear nowhere in the
+document. **That was wrong.** They appear in the state's **addendum**,
+which is a second, separately-generated full Budget Demand annexure. Our
+own workbook already held them verbatim on the addendum rows.
+
+The error was searching only the file the `row_uid` names and treating
+absence there as absence from the source set. **When a state has a
+companion document, search every document it has before calling anything
+invented.** What their file actually did was key an addendum remark to a
+minutes `row_uid` — a document mix-up, not invention.
+
+This matters beyond the grading, because it is evidence that **the two
+ministry documents genuinely disagree on remark text while agreeing on
+every figure.** Sikkim's minutes say the pre-primary support is "Rs.
+916.8 lakhs" (the Modified proposal) where the addendum says "Rs. 573.00
+lakhs" (what was actually recommended); Manipur's minutes say "Rs.50
+lakh" for the state PMU where the addendum says "Rs. 25 lakh". Record
+each against its own file, which is what the master does — do not
+"reconcile" them to each other.
 
 **So use such a file to LOCATE suspect rows, never to source values.**
 
@@ -1148,12 +1164,41 @@ regression, and it should not be "fixed" by a later pass.
   document is non-contributing (the four that are — EdCIL, NCPCR, NIEPA,
   NCERT — are central bodies). The retrospective-table hunt and a sweep
   for mission-named uncaptured lines both returned nothing.
-- **2025-26**: 21 close on their anchor, 14 more confirmed externally via
-  the portal, 1 open by the decision above. All 19 non-contributing
-  scanned companion documents were OCR-triaged for FLN / NIPUN /
-  re-appropriation keywords — every one is a revision or supplementary
-  letter amending other heads (RTE entitlements and so on), so no 2025-26
-  FLN figure is superseded.
+- **2025-26**: **35 of 36 close on their printed anchor, and none is
+  left without one.** The single open state is Chandigarh, by the
+  decision above. All 19 non-contributing scanned companion documents
+  were OCR-triaged for FLN / NIPUN / re-appropriation keywords — every
+  one is a revision or supplementary letter amending other heads (RTE
+  entitlements and so on), so no 2025-26 FLN figure is superseded.
+
+### The anchor was registered against the wrong file for 14 states
+
+Fourteen 2025-26 state-years reported "no printed total captured" even
+though **every one of them already held its own printed `Total of
+Foundational Literacy and Numeracy -FS` row in the Budget sheet.** Only
+the Log registration was missing, so the reconciliation had nothing to
+compare against. For Sikkim and Manipur the anchor was worse than
+missing — it sat on the **companion addendum**, while the rows that
+publish come from the primary minutes.
+
+**When a state-year reports no printed total, check the Budget sheet for
+its own total row and check its companion documents' Log entries before
+concluding the figure was never captured.** Registering these turned 14
+unverifiable states into 10 that close exactly plus 4 that disclosed a
+real defect — the §16.4 Tripura pattern again, a TOTAL row whose approved
+side had taken a State Proposal column:
+
+| State | Printed Recommended | Had been held as |
+|---|---|---|
+| Puducherry | 194.62900 | 195.103 |
+| Lakshadweep | 54.48650 | 54.5045 |
+| Madhya Pradesh | 27705.89050 | 27651.3465 (Initial col) |
+| Maharashtra | 18894.28000 | 18894.29 |
+
+In all four the state's activity rows already summed to the Recommended
+figure and the portal agreed, so no published figure moved. Madhya
+Pradesh's physicals were also digit-wrap truncated (printed "436767 4" =
+4367674, "427374 7" = 4273747). Staged in `ANCHORS_2526.py`.
 
 Published totals after this pass: **2025-26 405,044.65 lakh**,
 **2026-27 419,572.58 lakh**, 36 states each.
