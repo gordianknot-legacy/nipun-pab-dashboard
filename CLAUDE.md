@@ -329,6 +329,17 @@ Then the reconciliation audit across all years. As of the 2021-22 pass,
 and the workbook has no MISMATCH rows — so any new failure is a regression,
 not background noise.
 
+**That claim was re-tested on 2026-08-07 and no longer holds as written;
+see §16 and §17.** Two things to know before quoting it. First,
+`qa_workbook.py` does not recompute anything — it reports the `total_check`
+verdict *stored* in the Log at extraction time, so "MISMATCH files: none"
+means no row was ever flagged, not that the sums were re-verified. A fresh
+recomputation is a separate job (`dashboard.py:2136-2145` is the rule).
+Second, that recomputation now shows **7 documents that do not close**, of
+which one (Chandigarh 2025-26) is a deliberate decision and one (Madhya
+Pradesh 2022-23, −0.024) is source rounding. The rest sit in 2021-22 to
+2024-25 and are listed as backlog in §17.
+
 **2022-23 is fully closed.** All 36 documents carrying NIPUN content
 reconcile against their printed subtotal: 30 are `ok(vision-verified)`
 and 6 (Andhra Pradesh, Jharkhand, Madhya Pradesh, Maharashtra, Punjab,
@@ -995,7 +1006,210 @@ the sections in question in both copies.
 
 ---
 
-## 16. Commit conventions
+## 16. Cross-checking against an independent extract (2026-08-07)
+
+A colleague produced their own copy of the breakdown workbook
+(`NIPUN_2026-27_budget_breakdown_JH_070826.xlsx`) carrying an extra
+**"FY 2025-26"** sheet — a raw re-extract of that year, 332 rows, 319 of
+them keyed by `row_uid`. Diffing it against the master found real defects
+on both sides, and the shape of what it got right and wrong is worth
+keeping, because someone will do this again.
+
+**Diff BOTH of its sheets.** The first pass compared only its `Data` tab
+and found ~20 rows. The `FY 2025-26` tab is a different extract and had to
+be diffed separately; it produced 9 numeric and 29 substantive remark
+differences that the first pass never saw. Key on `row_uid`, never on row
+position.
+
+**Their copy was right about column errors and wrong about print
+fidelity.** It correctly caught that several states' proposed side had
+been read off the wrong column (below), which we had missed. But it also
+*silently reconciled* three source-internal inconsistencies, which is
+exactly what §9 says not to do:
+
+| Row | Their copy | What the page prints |
+|---|---|---|
+| Sikkim `#1` | "Rs. 573.00 lakhs" | **"Rs. 916.8 lakhs"** (raw p34) |
+| Manipur `#14` | "Rs.25 lakh" | **"Rs.50 lakh"** (raw p47) |
+| Manipur `#12` | "Recommended 50% due to change in Total outlay…" | **"Recommended as proposed"** |
+
+None of their three replacement strings occurs anywhere in the respective
+document. They also paraphrase ("Grade 2" where the page prints "Grade
+II"), drop a clause Puducherry does print ("of Grades I to II"), drop
+trailing full stops, and truncate a leading "R" ("ecommended").
+
+**So use such a file to LOCATE suspect rows, never to source values.**
+
+The findings were handed back as
+`NIPUN_2026-27_budget_breakdown_JH_070826_reviewed.xlsx` — their file
+copied, with the offending cells highlighted and annotated and an
+`Issues` sheet at the front. Note for anyone regenerating it: openpyxl
+round-trips that workbook faithfully (all 6 word-cloud images and all 6
+`ArrayFormula` cells survive), but comparing `ArrayFormula` cells with
+`!=` compares object identity and will report false differences — compare
+`.text` and `.ref`.
+
+**The cheapest way to adjudicate a disputed remark**, before rendering
+anything: flatten both strings to `[a-z0-9]` and substring-search the
+page's own text layer. The 2025-26 PRABANDH files are digital exports
+with no OCR layer over a scan, so there the text layer *is* the print and
+§2's warning does not apply. That settled 15 of 24 disputed rows at zero
+cost and proved the three fabrications above by absence. Only genuine
+scans (Punjab, from p14 on) needed a render.
+
+### The defect classes this surfaced
+
+1. **Proposed side read off `State Proposal (Initial)` instead of
+   `(Modified)`** — J&K, Assam, then Punjab (5 FS rows + the FS total).
+   §12 already states the rule; what is new is that it recurs, and that a
+   file can carry a *third* wrong value: Punjab `#add4`'s proposed
+   physical was 1004918, matching neither column (printed 1005198 /
+   1004983). Punjab's FS total also had both physicals truncated by the
+   page's digit wrap (printed 1807335, captured 180733).
+
+2. **Activity rows missing beneath a correctly-captured subtotal.** The
+   document reconciles, because the subtotal it reconciles against was
+   captured fine — but `ACT_MIN` sums `row_type=="activity"` only, so the
+   published figure is short. Chain closure cannot see this (§7).
+   Found in Rajasthan (ECCE + TLM + District PMU, **+₹61.24 Cr**),
+   Chandigarh (4 rows, +₹2.43 Cr) and West Bengal (Support to
+   Pre-Primary, **+₹7.20 Cr**). In West Bengal the missing row was the
+   *first* of its block, which is why its own Sub Total had been captured
+   with empty values — that empty subtotal is a tell.
+
+3. **A NIPUN-named line outside the block the extractor anchors on.**
+   Rajasthan's minutes print `3-Nipun Bharat Mission - MLE (Language
+   Mapping)` at 66.77 under `5.2 - Funds for Quality`. Same family as
+   Bihar/Kerala/Meghalaya in §15, but this one *names the mission*, so it
+   is not a judgement call. Corroborated by the state's own alt-copy
+   download, whose independent capture had picked it up — but alt copies
+   are excluded from `ACT_MIN`, so it never published.
+
+4. **A Log anchor taken from the proposal column.** Tripura's anchor held
+   1233.799, which the page prints on *both* proposal columns, against
+   1230.799 as Recommended by DoSEL. The state read 3.000 lakh short
+   against its own reconciliation while the published figure was right
+   the whole time. **A state that "does not close" may have a wrong
+   anchor rather than wrong data — check which column the anchor came
+   from before hunting for missing rows.**
+
+### The external reference that actually exists
+
+Every **2026-27** document embeds a Prabandh-generated retrospective
+table, `Sub Component wise Approval / Expenditure till Date (F.Y.
+2025-2026)`, giving that state's 2025-26 approvals by sub-component. It
+is generated by the ministry's own portal from its own records, so it is
+genuinely independent of this project's extraction — and it is the only
+such source that exists, since no public source publishes a
+NIPUN-specific national figure for these years.
+
+To read it: find the page containing `Sub Component wise Approval`,
+flatten whitespace, and take the **3rd** of the 8 numbers following the
+label `Foundational Literacy and Numeracy - FS` (and `Elementary Head`).
+That is the Budget Approvals *Total* column.
+
+Result: **31 of 36 states agree with the published per-state total to
+within 1 lakh, and no state falls below the portal figure.** The
+exceptions are all understood — Bihar (+33,237.06), Kerala (+1,728.09)
+and Meghalaya (+70.00) are exactly the NIPUN rows those states print
+under "Funds for Quality", which the portal tags to that component
+instead (§15). **Do not "fix" those.**
+
+Critically, this route independently confirms the **14 states that have
+no printed subtotal recorded in the Log**, all to within 0.01 lakh — so
+2025-26 has no unverifiable state left.
+
+**When the portal figure is LOWER than the printed minutes, look for a
+later re-appropriation PAB before concluding either source is wrong.**
+Rajasthan was the only state below, by 762.75 lakh.
+`Rajasthan_2025-26_supplementary_41405.pdf` (supplementary PAB
+19.03.2026, a 6-page **pure scan**, which is why no keyword sweep had
+ever surfaced it) reports exactly that amount as a saving under
+"Foundational Literacy and Numeracy (FL&N)-FS", re-appropriated with the
+rest of the Elementary savings to MMMER. **A state can surrender approved
+FLN money a year later, and the portal reports net of it.** This workbook
+publishes what the PAB approved as printed, so the minutes' figure stands
+and the Log now carries the explanation so it is not re-chased.
+
+### Chandigarh, deliberately left as it is
+
+Chandigarh's published total includes `18-Role play (class 3 to 5)`
+(7.40096), which sits inside a mixed Innovation component among plainly
+non-NIPUN neighbours (Vocational Education class 6-8, Literary Fest),
+falls outside both printed subtotals, and is excluded from the portal's
+FLN tagging. Three independent signals say it is not NIPUN. **The user
+decided on 2026-08-07 to leave it in.** It is therefore the only 2025-26
+state that does not close on its printed anchor — that is expected, not a
+regression, and it should not be "fixed" by a later pass.
+
+### Verification state of the two current years
+
+- **2026-27**: all 36 states close on their printed anchor. No state
+  document is non-contributing (the four that are — EdCIL, NCPCR, NIEPA,
+  NCERT — are central bodies). The retrospective-table hunt and a sweep
+  for mission-named uncaptured lines both returned nothing.
+- **2025-26**: 21 close on their anchor, 14 more confirmed externally via
+  the portal, 1 open by the decision above. All 19 non-contributing
+  scanned companion documents were OCR-triaged for FLN / NIPUN /
+  re-appropriation keywords — every one is a revision or supplementary
+  letter amending other heads (RTE entitlements and so on), so no 2025-26
+  FLN figure is superseded.
+
+Published totals after this pass: **2025-26 405,044.65 lakh**,
+**2026-27 419,572.58 lakh**, 36 states each.
+
+---
+
+## 17. Open backlog — reconciliation for 2024-25 and earlier
+
+Deferred by the user on 2026-08-07 to focus on the two current years.
+Recorded here so it is not rediscovered from scratch. Run
+`dashboard.py`'s own reconciliation rule (it honours `outside_block` and
+`PMU_OUTSIDE`; see `dashboard.py:2136-2145`) across all years — a naive
+sum-vs-anchor comparison reproduces §4's 18 false failures, because for
+the 86/87 schema years PMU sits outside the FLN anchor.
+
+Current standing, by that rule:
+
+| Year | States | Close | Do not close | No printed total |
+|---|---|---|---|---|
+| 2021-22 | 30 | 29 | 1 | 0 |
+| 2022-23 | 36 | 35 | 1 | 0 |
+| 2023-24 | 35 | 28 | 1 | 6 |
+| 2024-25 | 36 | 1 | 3 | **32** |
+| 2025-26 | 36 | 21 | 1 | 14 (all externally confirmed) |
+| 2026-27 | 36 | 36 | 0 | 0 |
+
+Specific items to work:
+
+- **Andhra Pradesh 2021-22 is double counted.** Both
+  `Andhra-Pradesh_2021-22_minutes.pdf` *and*
+  `Andhra-Pradesh_2021-22_minutes_9001.pdf` carry `doc_type="minutes"`,
+  so both enter `ACT_MIN`. The primary closes exactly (6484.998 against
+  its 6485.0 anchor); the alt adds a further 5326.633 for its single TLM
+  row, taking the state to 12,121.63. **This is the only state-year in the
+  whole workbook drawing on more than one source file** — the duplicate
+  should be retagged `minutes (alt)`. Worth roughly **−₹53.27 Cr** on
+  2021-22. Detect with: group `ACT_MIN` by state-year, flag any with more
+  than one `source_file`.
+- **Telangana 2024-25 is short by 2,223.544 lakh** against its printed
+  `Total of NIPUN Bharat Mission` (3907.3645). Its captured physical is
+  tiny against a printed 1,345,453, so this looks like a missing TLM row
+  — the §16.2 class again.
+- **Tamil Nadu 2024-25 (+380.00)** and **Andhra Pradesh 2024-25
+  (+260.00)** sum above their anchors; **Himachal Pradesh 2023-24
+  (−30.38)** below. Madhya Pradesh 2022-23 (−0.024) is source rounding
+  (§9), not a defect.
+- **2024-25 is 88% unverifiable** — 32 of 36 states have no printed total
+  captured, covering 192,516 lakh. The retrospective-table trick does
+  **not** help: it exists only in 2026-27 documents. These totals are
+  printed on the pages and simply were never captured into the Log, so
+  the work is to recover the printed `Total of …` line per document and
+  register it.
+
+---
+
+## 18. Commit conventions
 
 No AI attribution or co-author trailers in commits or PR bodies. Commit
 messages explain *why* a value changed and cite the printed figures.
