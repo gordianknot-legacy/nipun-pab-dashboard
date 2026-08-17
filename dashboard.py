@@ -102,6 +102,60 @@ LEAK_RE = (r"head cook|assistant cook|\bwarden\b|part time teacher"
 LEAK_CAT = "Non-NIPUN row (leaked, excluded from totals)"
 KGBV_CODES = (6483, 6496)  # inclusive C-code span of the KGBV block
 
+# ------------------------------------------------- CSF FLN focus states
+# The nine focus states CSF supplied for the 2026-27 budget breakdown
+# workbook (build_budget_breakdown.py, which imports this list) -- no such
+# list existed in the project before that workbook. The CSF Focus States
+# tab defaults to them; its multiselect lets a reader rescope without
+# editing code, so a screenshot of a non-default selection will not show
+# the CSF list -- the tab says which it is showing.
+CSF_FLN_STATES = ["Punjab", "Haryana", "Madhya Pradesh", "Uttar Pradesh",
+                  "Bihar", "Assam", "Telangana", "Odisha", "Gujarat"]
+
+# The six budget line items the breakdown workbook headlines, in its own
+# order. Deliberately excludes Assessment and Other, exactly like that
+# workbook's Totals row; the tab prints the broader all-categories figure
+# alongside rather than leaving the two totals to be found different.
+LINE_ITEMS = ["District PMU", "State PMU", "ECCE", "Capacity Building",
+              "TLM", "TRM"]
+LINE_ITEM_COLOR = {  # keyed by name, same reasoning as CAT_COLOR below
+    "District PMU": "#ec4899", "State PMU": "#f9a8d4",
+    "ECCE": CSF_YELLOW, "Capacity Building": "#3b82f6",
+    "TLM": CSF_BLUE, "TRM": "#10b981",
+}
+
+
+def pmu_split(activity):
+    s = str(activity).lower()
+    if re.search(r"state\s*level", s):
+        return "State PMU"
+    if re.search(r"district\s*level", s):
+        return "District PMU"
+    return None
+
+
+def bucket_category(row):
+    """The breakdown workbook's six line items (plus Assessment / Other /
+    Leaked), from a row's category_base and activity text. Lives here, not
+    in build_budget_breakdown.py, so the live tab and the workbook can
+    never disagree on what counts under which line item."""
+    cat = row["category_base"]
+    if cat == "PMU (State & District)":
+        return pmu_split(row["activity"]) or cat
+    if cat == "Pre-Primary / ECCE":
+        return "ECCE"
+    if cat == "Teacher Capacity Building":
+        return "Capacity Building"
+    if cat == "Teaching Learning Materials":
+        return "TLM"
+    if cat == "Teacher Resource / Handbook":
+        return "TRM"
+    if cat == LEAK_CAT:
+        return "Leaked (non-NIPUN)"
+    if cat == "Assessments & Learning Study":
+        return "Assessment"
+    return "Other"
+
 # ---------------------------------------------------------- grade scope
 # Which grades a budget line names, read off the printed page. Verified
 # against the source before this was built, because the common assumption
@@ -535,6 +589,8 @@ def load(mtime=None):
                               budget["remarks"])]
     budget["category_base"] = budget["category"].str.replace(
         " (from remarks)", "", regex=False)
+    # the breakdown workbook's six-line-item view, for the CSF tab
+    budget["bucket"] = budget.apply(bucket_category, axis=1)
     leaked = budget["category_base"] == LEAK_CAT
     budget.loc[leaked, "p_valid"] = False
     budget.loc[leaked, "a_valid"] = False
@@ -840,8 +896,9 @@ BUILD_NOTE = (f"Built from NIPUN_Bharat_PAB_master.xlsx, last updated "
               f"copies of their original uploads, because the files now on "
               f"the portal were re-uploaded at an unreadable resolution.")
 
-tab_story, tab_nat, tab_exp, tab_qual = st.tabs(
-    ["The Story", "National Picture", "Explore & Compare", "Data Quality"])
+tab_story, tab_nat, tab_exp, tab_csf, tab_qual = st.tabs(
+    ["The Story", "National Picture", "Explore & Compare",
+     "CSF Focus States", "Data Quality"])
 
 # ---------------------------------------------------------------- story
 with tab_story:
@@ -1976,6 +2033,290 @@ with tab_exp:
                       "This ranking (CSV)")
         else:
             st.info("No validated rows for this year under the selected heads.")
+
+# --------------------------------------------------------- csf focus states
+# The 2026-27 budget breakdown workbook's Headline view, live. Same validity
+# gate, same primary-minutes selection, same six line items (bucket_category
+# above is the single source for both), so the tab and the workbook cannot
+# disagree. Figures here are approved-only, matching that workbook.
+with tab_csf:
+    c_avail = sorted(BUDGET.state.dropna().unique())
+    c_default = [s for s in CSF_FLN_STATES if s in c_avail]
+    c_focus = st.multiselect(
+        "Focus states", c_avail, default=c_default, key="csf_focus",
+        help="Preloaded with the nine FLN focus states supplied by CSF. "
+             "Add or remove states to rescope every figure on this tab.")
+    if not c_focus:
+        c_focus = c_default
+    c_on_default = set(c_focus) == set(c_default)
+    c_scope = ("the 9 CSF FLN focus states" if c_on_default
+               else f"the {len(c_focus)} states selected above")
+    st.caption(
+        ("Showing the nine FLN focus states supplied by CSF. " if c_on_default
+         else "Showing a custom selection, not the CSF list. The CSF FLN "
+              "focus states are " + ", ".join(CSF_FLN_STATES) + ". ")
+        + "Final Approved Outlay only, validated rows from each state-year's "
+          "primary minutes, exactly as everywhere else in this app and in "
+          "the 2026-27 budget breakdown workbook.")
+
+    c_all = ACT_MIN[ACT_MIN.a_valid & (ACT_MIN.category_base != LEAK_CAT)]
+    c_foc = c_all[c_all.state.isin(c_focus)]
+    c_years = [y for y in YEARS if (c_all.year == y).any()]
+    c_cur = c_years[-1] if c_years else YEARS[-1]
+    c_pri = c_years[-2] if len(c_years) > 1 else c_cur
+
+    with section("The headline", "navy"):
+        cf_cur = c_foc[c_foc.year == c_cur].approved_financial_lakh.sum()
+        cf_pri = c_foc[c_foc.year == c_pri].approved_financial_lakh.sum()
+        cn_cur = c_all[c_all.year == c_cur].approved_financial_lakh.sum()
+        cf_all = c_foc.approved_financial_lakh.sum()
+        c_yoy = (cf_cur - cf_pri) / cf_pri * 100 if cf_pri else 0
+        c_share = cf_cur / cn_cur * 100 if cn_cur else 0
+        c_have = sorted(set(c_foc[c_foc.year == c_cur].state))
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric(f"Approved, {c_cur}", crore(cf_cur),
+                  delta=f"{c_yoy:+.1f}% vs {c_pri}", help=lakh(cf_cur))
+        k2.metric(f"Share of the {c_cur} national total", f"{c_share:.0f}%",
+                  help=f"{lakh(cf_cur)} of {lakh(cn_cur)} approved nationally")
+        k3.metric("Approved, all years", crore(cf_all), help=lakh(cf_all))
+        k4.metric(f"States with {c_cur} data",
+                  f"{len(c_have)} of {len(c_focus)}")
+        st.markdown(
+            f"**In {c_cur}, the PAB approved {crore(cf_cur)} "
+            f"({lakh(cf_cur)}) for NIPUN Bharat across {c_scope}, "
+            f"{'up' if c_yoy >= 0 else 'down'} {abs(c_yoy):.1f}% on {c_pri}. "
+            f"That is {c_share:.0f}% of everything approved nationally.**")
+        c_gaps = []
+        for y in c_years:
+            miss = sorted(set(c_focus) - set(c_foc[c_foc.year == y].state))
+            if miss:
+                c_gaps.append(f"{y} has no usable data for "
+                              f"{', '.join(miss)}")
+        if c_gaps:
+            st.caption("Coverage gaps within this selection. "
+                       + "; ".join(c_gaps) + ". Missing state-years are "
+                       "excluded rather than estimated, so the all-years "
+                       "figure above is a floor. See Data Quality for why.")
+
+    with section("Focus states against the nation", "blue"):
+        c_by = (c_all.assign(part=c_all.state.isin(c_focus).map(
+                    {True: "Focus states", False: "Rest of India"}))
+                .groupby(["year", "part"]).approved_financial_lakh.sum()
+                .reset_index())
+        c_parts = ["Focus states", "Rest of India"]
+        ch_n = (alt.Chart(c_by)
+                .mark_bar(size=44, stroke=CARD, strokeWidth=2)
+                .encode(x=alt.X("year:N", title=None, sort=YEARS),
+                        y=alt.Y("approved_financial_lakh:Q", title="Rs. lakh"),
+                        color=alt.Color("part:N", title=None, sort=c_parts,
+                                        scale=alt.Scale(domain=c_parts,
+                                                        range=[CSF_BLUE,
+                                                               "#c9d6e8"])),
+                        order=alt.Order("color_part_sort_index:Q"),
+                        tooltip=[alt.Tooltip("year:N", title="Year"),
+                                 alt.Tooltip("part:N", title="Scope"),
+                                 alt.Tooltip("approved_financial_lakh:Q",
+                                             title="Approved (Rs. lakh)",
+                                             format=",.0f")])
+                .properties(height=330))
+        st.altair_chart(themed(ch_n), width="stretch")
+        c_nat = (c_by.pivot(index="year", columns="part",
+                            values="approved_financial_lakh")
+                 .reindex(YEARS).fillna(0.0))
+        for p in c_parts:
+            if p not in c_nat.columns:
+                c_nat[p] = 0.0
+        c_nat["All India"] = c_nat[c_parts].sum(axis=1)
+        c_nat["Focus share (%)"] = (
+            c_nat["Focus states"] / c_nat["All India"] * 100).round(1)
+        c_nat = (c_nat.reset_index(names="Year")
+                 [["Year", "Focus states", "All India", "Focus share (%)"]]
+                 .rename(columns={"Focus states": "Focus states (Rs. lakh)",
+                                  "All India": "All India (Rs. lakh)"}))
+        c_natcols = ["Focus states (Rs. lakh)", "All India (Rs. lakh)"]
+        st.dataframe(right_align(
+            as_text(c_nat, c_natcols, ",.2f").style, c_natcols
+            + ["Focus share (%)"]), hide_index=True, width="stretch")
+        st.caption(f"Whole bar is the national approved total for the year; "
+                   f"the navy segment is {c_scope}. The share moves with "
+                   f"coverage as well as budgets, so read it beside the "
+                   f"coverage note above.")
+        table_csv(c_nat, "nipun_csf_focus_vs_national",
+                  "This comparison (CSV)")
+
+    with section("Line item by line item", "gold"):
+        c_li = c_foc[c_foc.bucket.isin(LINE_ITEMS)]
+        c_mix = (c_li.groupby(["year", "bucket"]).approved_financial_lakh
+                 .sum().reset_index())
+        ch_li = (alt.Chart(c_mix)
+                 .mark_bar(size=44, stroke=CARD, strokeWidth=2)
+                 .encode(x=alt.X("year:N", title=None, sort=YEARS),
+                         y=alt.Y("approved_financial_lakh:Q",
+                                 title="Rs. lakh"),
+                         color=alt.Color("bucket:N", title=None,
+                                         sort=LINE_ITEMS,
+                                         scale=alt.Scale(
+                                             domain=LINE_ITEMS,
+                                             range=[LINE_ITEM_COLOR[i]
+                                                    for i in LINE_ITEMS])),
+                         order=alt.Order("color_bucket_sort_index:Q"),
+                         tooltip=[alt.Tooltip("year:N", title="Year"),
+                                  alt.Tooltip("bucket:N", title="Line item"),
+                                  alt.Tooltip("approved_financial_lakh:Q",
+                                              title="Approved (Rs. lakh)",
+                                              format=",.0f")])
+                 .properties(height=330))
+        st.altair_chart(themed(ch_li), width="stretch")
+        st.caption("The six line items the 2026-27 breakdown workbook "
+                   "headlines, for the focus states. ECCE is near zero "
+                   "before 2025-26 because pre-primary lines only entered "
+                   "the NIPUN annexure block with that year's Foundational "
+                   "Stage layout, not because the money vanished.")
+
+        def _li_pair(df, item_set):
+            return (df[(df.year == c_cur)
+                       & df.bucket.isin(item_set)].approved_financial_lakh.sum(),
+                    df[(df.year == c_pri)
+                       & df.bucket.isin(item_set)].approved_financial_lakh.sum())
+
+        def _pct(a, b):
+            return (a - b) / b * 100 if b else None
+
+        c_rows = []
+        for item in LINE_ITEMS:
+            fc, fp = _li_pair(c_foc, [item])
+            nc, np_ = _li_pair(c_all, [item])
+            c_rows.append({"Line item": item,
+                           "Focus " + c_cur: fc, "Focus " + c_pri: fp,
+                           "Focus % change": _pct(fc, fp),
+                           "National " + c_cur: nc, "National " + c_pri: np_,
+                           "National % change": _pct(nc, np_)})
+        fc, fp = _li_pair(c_foc, LINE_ITEMS)
+        nc, np_ = _li_pair(c_all, LINE_ITEMS)
+        c_rows.append({"Line item": "Totals (six line items)",
+                       "Focus " + c_cur: fc, "Focus " + c_pri: fp,
+                       "Focus % change": _pct(fc, fp),
+                       "National " + c_cur: nc, "National " + c_pri: np_,
+                       "National % change": _pct(nc, np_)})
+        fc = c_foc[c_foc.year == c_cur].approved_financial_lakh.sum()
+        fp = c_foc[c_foc.year == c_pri].approved_financial_lakh.sum()
+        nc = c_all[c_all.year == c_cur].approved_financial_lakh.sum()
+        np_ = c_all[c_all.year == c_pri].approved_financial_lakh.sum()
+        c_rows.append({"Line item": "All NIPUN categories "
+                                    "(incl. Assessment and Other)",
+                       "Focus " + c_cur: fc, "Focus " + c_pri: fp,
+                       "Focus % change": _pct(fc, fp),
+                       "National " + c_cur: nc, "National " + c_pri: np_,
+                       "National % change": _pct(nc, np_)})
+        c_lit = pd.DataFrame(c_rows)
+        c_amounts = ["Focus " + c_cur, "Focus " + c_pri,
+                     "National " + c_cur, "National " + c_pri]
+        c_pcts = ["Focus % change", "National % change"]
+        c_show = as_text(as_text(c_lit, c_amounts, ",.2f"),
+                         c_pcts, "+.1f", blank="")
+        st.dataframe(right_align(c_show.style, c_amounts + c_pcts),
+                     hide_index=True, width="stretch")
+        st.caption(f"Rs. lakh, {c_cur} against {c_pri}. The Totals row "
+                   f"covers just these six line items, exactly like the "
+                   f"breakdown workbook; the row beneath it is the broader "
+                   f"all-categories figure the National Picture tab uses. "
+                   f"A blank % change means nothing was approved under "
+                   f"that item in {c_pri}.")
+        table_csv(c_lit, "nipun_csf_focus_line_items",
+                  "This table (CSV)")
+
+    with section("State by state, across the years", "emerald"):
+        c_tr = (c_foc.groupby(["state", "year"]).approved_financial_lakh
+                .sum().reset_index())
+        ch_tr = (alt.Chart(c_tr)
+                 .mark_line(point=True, strokeWidth=2.5)
+                 .encode(x=alt.X("year:N", title=None, sort=YEARS),
+                         y=alt.Y("approved_financial_lakh:Q",
+                                 title="Rs. lakh"),
+                         color=alt.Color("state:N", title=None,
+                                         scale=alt.Scale(range=SERIES)),
+                         tooltip=[alt.Tooltip("state:N", title="State/UT"),
+                                  alt.Tooltip("year:N", title="Year"),
+                                  alt.Tooltip("approved_financial_lakh:Q",
+                                              title="Rs. lakh",
+                                              format=",.1f")])
+                 .properties(height=380))
+        st.altair_chart(themed(ch_tr), width="stretch")
+        st.caption("A gap in a line means no usable data for that "
+                   "state-year, not a zero approval.")
+        c_wide = (c_tr.pivot(index="state", columns="year",
+                             values="approved_financial_lakh")
+                  .reindex(columns=YEARS))
+        c_wide["Delta"] = c_wide[c_cur].fillna(0) - c_wide[c_pri].fillna(0)
+        c_wide["% change"] = [
+            _pct(a, b) for a, b in zip(c_wide[c_cur].fillna(0),
+                                       c_wide[c_pri].fillna(0))]
+        c_wide = (c_wide.sort_values(c_cur, ascending=False)
+                  .reset_index(names="State / UT"))
+        c_wnum = YEARS + ["Delta"]
+        c_wshow = as_text(as_text(c_wide, c_wnum, ",.2f"),
+                          ["% change"], "+.1f", blank="")
+        st.dataframe(right_align(c_wshow.style, c_wnum + ["% change"]),
+                     hide_index=True, width="stretch")
+        st.caption(f"Rs. lakh, every NIPUN category including Assessment "
+                   f"and Other, matching the headline above and the rest "
+                   f"of this app. A state's figure here can therefore sit "
+                   f"above its six-line-item All six in the section below. "
+                   f"Delta and % change compare {c_cur} with {c_pri}. "
+                   f"Sorted by the {c_cur} figure.")
+        table_csv(c_wide, "nipun_csf_focus_states_by_year",
+                  "This table (CSV)")
+
+    with section("Where each state's money goes", "pink"):
+        c_yr = st.selectbox("Year", c_years, index=len(c_years) - 1,
+                            key="csf_li_year")
+        c_sm = (c_foc[(c_foc.year == c_yr) & c_foc.bucket.isin(LINE_ITEMS)]
+                .groupby(["state", "bucket"]).approved_financial_lakh
+                .sum().reset_index())
+        if len(c_sm):
+            c_ord = (c_sm.groupby("state").approved_financial_lakh.sum()
+                     .sort_values(ascending=False).index.tolist())
+            ch_sm = (alt.Chart(c_sm)
+                     .mark_bar(size=18, stroke=CARD, strokeWidth=1)
+                     .encode(y=alt.Y("state:N", sort=c_ord, title=None,
+                                     axis=alt.Axis(labelOverlap=False,
+                                                   labelLimit=220)),
+                             x=alt.X("approved_financial_lakh:Q",
+                                     title="Rs. lakh"),
+                             color=alt.Color("bucket:N", title=None,
+                                             sort=LINE_ITEMS,
+                                             scale=alt.Scale(
+                                                 domain=LINE_ITEMS,
+                                                 range=[LINE_ITEM_COLOR[i]
+                                                        for i in LINE_ITEMS])),
+                             order=alt.Order("color_bucket_sort_index:Q"),
+                             tooltip=[alt.Tooltip("state:N", title="State/UT"),
+                                      alt.Tooltip("bucket:N",
+                                                  title="Line item"),
+                                      alt.Tooltip("approved_financial_lakh:Q",
+                                                  title="Approved (Rs. lakh)",
+                                                  format=",.1f")])
+                     .properties(height=max(240, 34 * len(c_ord))))
+            st.altair_chart(themed(ch_sm), width="stretch")
+            c_mat = (c_sm.pivot(index="state", columns="bucket",
+                                values="approved_financial_lakh")
+                     .reindex(columns=LINE_ITEMS))
+            c_mat["All six"] = c_mat.sum(axis=1)
+            c_mat = (c_mat.sort_values("All six", ascending=False)
+                     .reset_index(names="State / UT"))
+            c_mcols = LINE_ITEMS + ["All six"]
+            st.dataframe(right_align(
+                as_text(c_mat, c_mcols, ",.2f", blank="").style, c_mcols),
+                hide_index=True, width="stretch")
+            st.caption(f"Rs. lakh, {c_yr}, six line items only. A blank "
+                       f"cell means no validated approval under that item. "
+                       f"All six excludes Assessment and Other, matching "
+                       f"the Totals row above.")
+            table_csv(c_mat, f"nipun_csf_focus_line_items_{c_yr}",
+                      "This matrix (CSV)")
+        else:
+            st.info("No validated rows under the six line items for this "
+                    "year and selection.")
 
 # ---------------------------------------------------------------- quality
 with tab_qual:

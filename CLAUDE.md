@@ -519,11 +519,20 @@ printed and say so in the docstring, or someone will "fix" it later.
   needed to hit the widget in the tab you actually opened. Table cells are
   drawn on a canvas and never appear in `inner_text`, so a table can only be
   checked by screenshot.
-- The app is four tabs: The Story, National Picture, Explore & Compare,
-  Data Quality. It was six until the 2026-08 redesign; Compare States was
-  folded into the state explorer behind one shared state multiselect (one
-  state selected gives the annexure view, two or more give the comparison),
-  and Analytics became a national-scope section of National Picture.
+- The app is five tabs: The Story, National Picture, Explore & Compare,
+  CSF Focus States, Data Quality. It was six until the 2026-08 redesign;
+  Compare States was folded into the state explorer behind one shared state
+  multiselect (one state selected gives the annexure view, two or more give
+  the comparison), and Analytics became a national-scope section of National
+  Picture. CSF Focus States was added 2026-08-17: the 2026-27 budget
+  breakdown workbook's Headline view live, defaulting to the 9 CSF FLN
+  focus states (`CSF_FLN_STATES`) with an editable multiselect. Its
+  six-line-item bucketing (`bucket_category`, `pmu_split`, `LINE_ITEMS`)
+  lives in `dashboard.py` and `build_budget_breakdown.py` imports it, so
+  the tab and the workbook cannot bucket a row differently. The tab's
+  line-item tables are six-item scope; its headline and state-trend table
+  are all-NIPUN scope (both say so on the page), and the line-item table
+  carries both totals to bridge them.
 - **Keep `STATUS_LABEL`, `DOC_LABEL`, `OUTSIDE_HEADS` and `_COMPANION` as
   flat literal assignments.** `check_stale_content.py:54` recovers them by
   regex from the source text and `eval`s the match, and the pattern stops at
