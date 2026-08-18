@@ -257,6 +257,14 @@ def scope_band(activity, remarks):
 # so excluding that prefix would drop real NIPUN rows. The only other 32.x
 # rows in the workbook are Gujarat header rows, which carry no value.
 OUTSIDE_HEADS = ("102", "36", "37", "38", "106", "134", "77", "79", "48")
+# The Prabandh schema's equivalent of head 102, assessment at state level,
+# which no "Total of NIPUN Bharat Mission" spans. It has to be matched on
+# the first TWO code components, because "5" on its own is every NIPUN row
+# in that schema. The label guard beside it is load-bearing: Rajasthan
+# 2025-26 prints "3-Nipun Bharat Mission - MLE (Language Mapping)" under
+# 5.2.1, which is genuine NIPUN content and must stay inside the block.
+OUTSIDE_SUBHEADS = ("5.2",)
+OUTSIDE_SUBHEAD_LABEL = "assessment"
 PMU_ROW_RE = r"\bpmu\b|formation of|^\s*\d?\s*-?\s*(?:district|state) level"
 PMU_TOTAL_RE = r"total.*(?:pmu|formation of)"
 
@@ -608,7 +616,10 @@ def load(mtime=None):
 
     _pre = budget["code"].astype(str).str.split(".").str[0]
     _lab = budget["activity"].astype(str).str.lower()
-    budget["outside_block"] = _pre.isin(OUTSIDE_HEADS)
+    _pre2 = budget["code"].astype(str).str.split(".").str[:2].str.join(".")
+    budget["outside_block"] = _pre.isin(OUTSIDE_HEADS) | (
+        _pre2.isin(OUTSIDE_SUBHEADS)
+        & _lab.str.contains(OUTSIDE_SUBHEAD_LABEL, na=False))
     budget["is_pmu_row"] = _pre.eq("87") | _lab.str.contains(
         PMU_ROW_RE, regex=True, na=False)
     budget["quality"] = budget["status"].map(STATUS_LABEL).fillna(budget["status"])
