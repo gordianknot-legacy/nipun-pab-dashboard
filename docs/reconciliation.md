@@ -295,7 +295,12 @@ Recorded here so it is not rediscovered from scratch. Run
 sum-vs-anchor comparison reproduces §4's 18 false failures, because for
 the 86/87 schema years PMU sits outside the FLN anchor.
 
-Current standing, by that rule:
+Standing **as measured on 2026-08-07**, by that rule. It has not been
+recomputed since, so treat it as a starting point rather than as
+current — the Andhra Pradesh item below was fixed on 2026-08-18 and
+does not move this table, because that state's primary always closed
+against its anchor and the defect was in `ACT_MIN` selection rather
+than in reconciliation. Anything else fixed since would move it.
 
 | Year | States | Close | Do not close | No printed total |
 |---|---|---|---|---|
@@ -308,16 +313,39 @@ Current standing, by that rule:
 
 Specific items to work:
 
-- **Andhra Pradesh 2021-22 is double counted.** Both
-  `Andhra-Pradesh_2021-22_minutes.pdf` *and*
-  `Andhra-Pradesh_2021-22_minutes_9001.pdf` carry `doc_type="minutes"`,
-  so both enter `ACT_MIN`. The primary closes exactly (6484.998 against
-  its 6485.0 anchor); the alt adds a further 5326.633 for its single TLM
-  row, taking the state to 12,121.63. **This is the only state-year in the
-  whole workbook drawing on more than one source file** — the duplicate
-  should be retagged `minutes (alt)`. Worth roughly **−₹53.27 Cr** on
-  2021-22. Detect with: group `ACT_MIN` by state-year, flag any with more
-  than one `source_file`.
+- ~~**Andhra Pradesh 2021-22 is double counted.**~~ **FIXED
+  2026-08-18, −₹53.27 Cr.** The state published 12,121.63 against a
+  printed 6795.0. Root cause was not the file but the module:
+  `pass2122_data/AP.py`'s `row()` helper hardcoded
+  `doc_type="minutes"` while its `make()` runs for the primary *and*
+  the `_9001` alt copy, so the four rows that module ADDED to the alt
+  carried the primary's tag and its TLM row (5326.6335) entered
+  `ACT_MIN` on top of the primary's. The alt's *pre-existing* rows were
+  tagged `minutes (alt)` correctly, which is exactly why this hid for
+  eleven months — and why the module's own docstring asserted the alt
+  was "excluded by the dashboard's doc_type fallback". **That claim was
+  true of the file and false of the rows.**
+
+  Fixed at source (`row()` now derives `doc_type` from the file name)
+  and repaired in place through `OVERS`, because the apply script
+  inserts nothing whose uid already exists — a source-only fix would
+  have left the workbook wrong while looking correct on re-run.
+
+  **Two detections, and prefer the second.** Grouping `ACT_MIN` by
+  state-year and flagging more than one `source_file` finds it only
+  when the primary also has rows. The general test is:
+
+  ```python
+  # a row in an alt copy whose doc_type does not say so
+  m = re.match(r"^(.*)_(\d{4,5})\.pdf$", src)
+  is_alt = bool(m) and (m.group(1) + ".pdf") in all_source_files
+  bad = is_alt and "(alt)" not in doc_type
+  ```
+
+  Both now return nothing across the whole workbook. Nine modules still
+  loop a `make(SF)` over a primary and an alt; only this one added
+  activity rows, but re-run the sweep after any pass that touches an
+  alt copy.
 - **Telangana 2024-25 is short by 2,223.544 lakh** against its printed
   `Total of NIPUN Bharat Mission` (3907.3645). Its captured physical is
   tiny against a printed 1,345,453, so this looks like a missing TLM row
