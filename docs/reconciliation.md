@@ -307,7 +307,7 @@ than in reconciliation. Anything else fixed since would move it.
 | 2021-22 | 30 | 29 | 1 | 0 |
 | 2022-23 | 36 | 35 | 1 | 0 |
 | 2023-24 | 35 | 28 | 1 | 6 |
-| 2024-25 | 36 | 1 | 3 | **32** |
+| 2024-25 | 36 | 4 | 0 | **32** | (the 3 do-not-close fixed 2026-08-18) |
 | 2025-26 | 36 | 21 | 1 | 14 (all externally confirmed) |
 | 2026-27 | 36 | 36 | 0 | 0 |
 
@@ -346,14 +346,50 @@ Specific items to work:
   loop a `make(SF)` over a primary and an alt; only this one added
   activity rows, but re-run the sweep after any pass that touches an
   alt copy.
-- **Telangana 2024-25 is short by 2,223.544 lakh** against its printed
-  `Total of NIPUN Bharat Mission` (3907.3645). Its captured physical is
-  tiny against a printed 1,345,453, so this looks like a missing TLM row
-  — the §16.2 class again.
-- **Tamil Nadu 2024-25 (+380.00)** and **Andhra Pradesh 2024-25
-  (+260.00)** sum above their anchors; **Himachal Pradesh 2023-24
-  (−30.38)** below. Madhya Pradesh 2022-23 (−0.024) is source rounding
-  (§9), not a defect.
+- ~~**Telangana 2024-25 is short by 2,223.544 lakh**~~ **FIXED
+  2026-08-18, +₹25.54 Cr.** The gap was **2,553.5445**, not 2,223.544 —
+  the smaller figure was measured against a row set that included
+  `5.2.1 Assessment at State level` (330.00), which sits outside the
+  NIPUN anchor entirely. Two printed FLN rows had never been captured:
+  TLM for innovative pedagogies (1,235,604 students at ₹200 =
+  2471.208) and Teacher Resource Material / Activity Handbook (54,891
+  teachers at ₹150 = 82.3365). Both read off a 200 DPI render of p44.
+
+  **Why it reported itself reconciled** is the part worth keeping.
+  `pass2425_data/TG.py` already carried both figures in its own
+  docstring, so the page had been read and the rows were known — but
+  instead of adding them, the pass wrote the printed total into the Log
+  by hand on **both** the printed and the summed field. `total_check`
+  then compared the number with itself and returned OK forever. This is
+  the failure `CLAUDE.md` names: a hardcoded Log stops being a check.
+  The anchor now regenerates (the `FS` regex treats the `(FLN)` suffix
+  as optional, which is what had blocked automatic registration).
+
+- ~~**Tamil Nadu 2024-25 (+380.00)** and **Andhra Pradesh 2024-25
+  (+260.00)** sum above their anchors~~ **FIXED 2026-08-18, and they
+  were one bug, not two.** Both overshot by exactly the size of their
+  own `5.2.1 Assessment at State level` row, as did Telangana (330.00).
+
+  **§4 already says to exclude head `102`, assessment at state level,
+  because no NIPUN total spans it. The Prabandh schema calls that head
+  `5.2`, and the exclusion list was never extended to the new
+  numbering** — it could not be, naively, because the list matches the
+  first code component and `5` on its own is every NIPUN row. Matching
+  the first *two* components fixes it. The match must also be guarded
+  on the label: Rajasthan 2025-26 prints a genuine
+  `3-Nipun Bharat Mission - MLE (Language Mapping)` under `5.2.1`
+  (§16.3) which must stay inside the block.
+
+  `outside_block` feeds only the reconciliation table, never a
+  published total, so no rupee figure moved on account of this. **All
+  three 2024-25 do-not-close items are now retired.**
+
+- **Himachal Pradesh 2023-24 (−30.38)** is still open. Madhya Pradesh
+  2022-23 (−0.024) is source rounding (§9), not a defect.
+
+**When a whole year's states overshoot by the size of one row each,
+suspect the scope list before suspecting the data.** Three states, three
+different amounts, one cause.
 - **2024-25 is 88% unverifiable** — 32 of 36 states have no printed total
   captured, covering 192,516 lakh. The retrospective-table trick does
   **not** help: it exists only in 2026-27 documents. These totals are
