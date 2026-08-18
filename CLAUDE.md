@@ -154,7 +154,9 @@ documents that do not close, one of them a deliberate decision
 `docs/reconciliation.md`. 2024-25 is 88% unanchored.
 
 **ICT.** 2024-25, 2025-26 and 2026-27 complete, 36 of 36 states each.
-UDISE+ complete for five census years. 2023-24 and 2019-21 outstanding.
+2023-24 in progress at 25 of 36 (22 with rows, 3 no-ask; the other 11
+are scans whose blocks are located and whose figures need page reads).
+UDISE+ complete for five census years. 2019-21 downloaded, unparsed.
 Detail in `docs/ict-extraction.md`.
 
 **Apps.** `deploy_dashboard/` → nipun-pab.streamlit.app,
