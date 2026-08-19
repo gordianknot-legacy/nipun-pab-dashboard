@@ -237,6 +237,69 @@ for the pure scans, and vision reads of a digital state remain worth
 doing as a free cross-check, but do not budget a vision campaign for the
 whole year before running the census.
 
+### 2019-21 is an ITEMISED HARDWARE list, and `ict_categorize.py` cannot read it
+Status as of 2026-08-19: partially extracted and **deliberately not
+loaded into the workbook**. `ict_extract_1921.py` →
+`ict_1921_extract.csv` (145 rows, 16 state-years, 52 of 56
+reconciliations green) plus `ict_1921_census.csv` and
+`ict_1921_locate.csv`. Verified against the page: Bihar 2019-20 p386
+captures exactly what prints.
+
+Census over all 103 files in **`ict_pdfs/`** (not `pdfs/`): both years
+cover all 36 states; **42 files across 39 state-years print a
+`Total of ICT and Digital Initiatives` line**, and 40 of those 42 have
+image pages, so this is largely a vision year.
+
+**The blocker is vocabulary, not geometry.** These years do not use the
+Type-I / Type-II school-band scheme at all. The sub-component is
+numbered `100`/`102`/`103`/`105`, headed `ICT and Digital Initiatives
+(up to Highest Class VIII) - NR`, and its rows are an **itemised
+hardware bill**:
+
+```
+100.a  Tablets/Laptop/Notebook/PCs      1068 @ 6.00000 = 6408
+100.b  Operating System / Softwares     1068 @ 0.20000 =  213.6
+100.c  Furniture                        1068 @ 0.20000 =  213.6
+       Total of ICT and Digital Initiatives (up to Highest Class VIII) - NR
+```
+
+with `Instructor`, `Internet / Broadband Charges`, `E-Content and
+Digital Resources`, `Electricity/Diesel/Kerosene` and `Reimbursement
+(ICT)` on the recurring side.
+
+Run `ict_categorize.py` over those labels and it does two wrong things
+at once:
+
+- **`Tablets/Laptop/Notebook/PCs` matches `\btablet` and becomes
+  "Teacher Tablets".** On the page these are ICT lab machines for 481
+  *schools* at ₹6 lakh a school, not tablets issued to teachers. Nine
+  rows are wrong this way.
+- **19 labels return `None` and would be dropped entirely** — Operating
+  System, Furniture, Instructor, Internet, E-Content, Electricity. Every
+  one is a real ICT line inside the printed block, so a state's
+  published figure would land short of its own printed total.
+
+**Do not load this year until that is settled**, and settling it is a
+judgement call rather than a mechanical fix, because §18's standing rule
+is that component patterns match on the **label only** and rolling block
+context is for KGBV / teacher-education flags — a rule that exists
+because PM-JANMAN and DAJGUA rows miscategorise otherwise. The obvious
+route here (take the component from the enclosing sub-block heading,
+so everything under `ICT and Digital Initiatives ... - NR` is ICT Lab
+NR and everything under `Recurring Components (ICT & Digital
+Initiatives)` is ICT Lab R) is exactly the route that rule forbids.
+Adding bare label patterns instead is its own trap: `Furniture` and
+`Instructor` are as generic as the "Maintenance" and "Miscellaneous"
+labels the KGBV quarantine had to stop matching by name.
+
+Four reconciliation failures remain, and both are structural rather than
+wrong values: Himachal Pradesh 2019-20 p181 (its block total is the sum
+of two sub-blocks, 5405.21 + 2988.80 = 8394.01 printed, but only one is
+attributed; a real 0.08 gap sits on the approved side of the Secondary
+recurring sub-block) and Uttar Pradesh 2019-20 p654 (figures match
+exactly, 168.00 / 108.57, but the level is unresolved and the block
+total attributes nothing).
+
 ### 2023-24 is the NIC "Particulars" year, not PRABANDH
 No document contains the string "Budget Demand". The costing annexure
 is a ruled Word table with exactly two sides, `Proposal` and `Final
