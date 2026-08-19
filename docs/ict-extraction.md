@@ -238,8 +238,8 @@ doing as a free cross-check, but do not budget a vision campaign for the
 whole year before running the census.
 
 ### 2019-21 is an ITEMISED HARDWARE list, and `ict_categorize.py` cannot read it
-Status as of 2026-08-19: partially extracted and **deliberately not
-loaded into the workbook**. `ict_extract_1921.py` →
+Status as of 2026-08-19: **RESOLVED and loaded** as an in-progress
+year (9 states in 2019-20, 7 in 2020-21). `ict_extract_1921.py` →
 `ict_1921_extract.csv` (145 rows, 16 state-years, 52 of 56
 reconciliations green) plus `ict_1921_census.csv` and
 `ict_1921_locate.csv`. Verified against the page: Bihar 2019-20 p386
@@ -279,7 +279,19 @@ at once:
   one is a real ICT line inside the printed block, so a state's
   published figure would land short of its own printed total.
 
-**Do not load this year until that is settled**, and settling it is a
+**Settled 2026-08-19 by the user: Option A, the sub-block route.**
+The component now comes from the enclosing sub-block heading via
+`categorize_block()` in `ict_categorize.py` -- a **separate entry
+point** scoped to these two years, so `categorize()` is untouched and
+no other year can reach it. Verified by rebuilding the workbook and
+confirming `Data_Costing` and `Data_Execution` are byte-identical for
+2023-24 through 2026-27. `assert_1921_scope()` raises if a heading ever
+appears the exception does not safely cover (today every one is
+ICT-family, so every row is ICT Lab and the R/NR split is carried by
+`nature`). All 92 activity rows resolve, none dropped, and the workbook
+holds no Teacher Tablets row on the costing side.
+
+The reasoning kept, because the tension is real, and settling it is a
 judgement call rather than a mechanical fix, because §18's standing rule
 is that component patterns match on the **label only** and rolling block
 context is for KGBV / teacher-education flags — a rule that exists
@@ -292,13 +304,25 @@ Adding bare label patterns instead is its own trap: `Furniture` and
 `Instructor` are as generic as the "Maintenance" and "Miscellaneous"
 labels the KGBV quarantine had to stop matching by name.
 
-Four reconciliation failures remain, and both are structural rather than
-wrong values: Himachal Pradesh 2019-20 p181 (its block total is the sum
-of two sub-blocks, 5405.21 + 2988.80 = 8394.01 printed, but only one is
-attributed; a real 0.08 gap sits on the approved side of the Secondary
-recurring sub-block) and Uttar Pradesh 2019-20 p654 (figures match
-exactly, 168.00 / 108.57, but the level is unresolved and the block
-total attributes nothing).
+**The four reconciliation failures are closed** (`ict_vision_1921.py`,
+self-verifying), and neither was a wrong value -- in both cases rows
+were missing from the output: Himachal Pradesh 2019-20 p181 lost its entire recurring
+sub-block, and the one figure it did keep was misread from a wrapped
+cell -- the page prints `4176.3` over `8382` and the value is
+**4176.38382**, the digit-wrap-after-the-decimal trap recurring in an
+earlier year. Uttar Pradesh 2019-20 p654 lost every row but its block
+total, and **its level is genuinely absent from the source**: the page
+truncates its own heading at `Recurring Components (ICT &` with no
+class span, so level is recorded as "Not stated" rather than inferred
+from neighbouring sub-components.
+
+### State names differ between corpora and will split a state silently
+`ict_pdfs/` (the 2019-21 Drive fetch) writes `Jammu and Kashmir` where
+`pdfs/` writes `Jammu-&-Kashmir`. Loaded as-is, the app showed two
+separate states each holding half the years. `build_ict_workbook.py`
+now maps the known variants and then **raises** if any two remaining
+names differ only by `&` versus `and`, so the next corpus fails loudly
+instead of splitting a state quietly.
 
 ### 2023-24 is the NIC "Particulars" year, not PRABANDH
 No document contains the string "Budget Demand". The costing annexure

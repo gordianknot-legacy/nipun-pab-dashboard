@@ -156,11 +156,12 @@ documents that do not close, one of them a deliberate decision
 **ICT.** 2024-25, 2025-26 and 2026-27 complete, 36 of 36 states each.
 2023-24 in progress at 25 of 36 (22 with rows, 3 no-ask; the other 11
 are scans whose blocks are located and whose figures need page reads).
-UDISE+ complete for five census years. 2019-21 is partially extracted
-and deliberately NOT loaded: those years print an itemised hardware bill
-rather than the Type-I/Type-II scheme, and `ict_categorize.py` both
-miscategorises and silently drops most of it. See the doc before
-touching it.
+2019-20 (9 states) and 2020-21 (7) are loaded, also in progress. UDISE+
+complete for five census years. Those two earliest years print an
+itemised hardware bill rather than the Type-I/Type-II scheme and take
+their component from the enclosing sub-block heading, a deliberate
+year-scoped exception to the label-only rule; read the doc before
+extending it.
 Detail in `docs/ict-extraction.md`.
 
 **Apps.** `deploy_dashboard/` → nipun-pab.streamlit.app,
