@@ -617,9 +617,16 @@ def load(mtime=None):
     _pre = budget["code"].astype(str).str.split(".").str[0]
     _lab = budget["activity"].astype(str).str.lower()
     _pre2 = budget["code"].astype(str).str.split(".").str[:2].str.join(".")
+    # "Assessment at State level" is never inside a printed NIPUN total, in
+    # any layout: head 102 in the NIC years (OUTSIDE_HEADS), 5.2.1 in 2024-25
+    # (OUTSIDE_SUBHEADS), and 5.1.1 in 2025-26, where 5.1 is that sub-component
+    # and no subhead rule can be used because 5.1.1 is the NIPUN block itself
+    # in 2024-25. Matched on the label so 2025-26's lines, added 2026-11-24,
+    # do not make documents read as not closing.
     budget["outside_block"] = _pre.isin(OUTSIDE_HEADS) | (
         _pre2.isin(OUTSIDE_SUBHEADS)
-        & _lab.str.contains(OUTSIDE_SUBHEAD_LABEL, na=False))
+        & _lab.str.contains(OUTSIDE_SUBHEAD_LABEL, na=False)) | _lab.str.contains(
+        r"assessment at (?:the )?state level", regex=True, na=False)
     budget["is_pmu_row"] = _pre.eq("87") | _lab.str.contains(
         PMU_ROW_RE, regex=True, na=False)
     budget["quality"] = budget["status"].map(STATUS_LABEL).fillna(budget["status"])
