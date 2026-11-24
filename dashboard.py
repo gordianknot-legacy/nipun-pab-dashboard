@@ -266,7 +266,10 @@ OUTSIDE_HEADS = ("102", "36", "37", "38", "106", "134", "77", "79", "48")
 OUTSIDE_SUBHEADS = ("5.2",)
 OUTSIDE_SUBHEAD_LABEL = "assessment"
 PMU_ROW_RE = r"\bpmu\b|formation of|^\s*\d?\s*-?\s*(?:district|state) level"
-PMU_TOTAL_RE = r"total.*(?:pmu|formation of)"
+# A "Sub Total (5.1.2 - Formation of PMU ...)" row (Manipur 2024-25) is a subtotal INSIDE the printed
+# "Total of NIPUN Bharat Mission", not a sign that PMU is totalled outside it; only a full PMU total
+# counts (narrowed 2026-11-24; checked that Manipur 2024-25 is the only file this changes).
+PMU_TOTAL_RE = r"^(?!\s*sub\s*-?\s*total).*total.*(?:pmu|formation of)"
 
 st.set_page_config(page_title="NIPUN Bharat PAB Minutes",
                    layout="wide", page_icon="📗")
